@@ -1,0 +1,51 @@
+{
+    "What": {
+        "Sector": "sector name",
+        "Industry": "industry name",
+        "Niche": "niche or business focus",
+        "Description": "detailed description of what the company does",
+        "Products": "main products, services, or offerings",
+        "MarketPosition": "business category and market position"
+    },
+    "When": {
+        "FoundedYear": "founded year",
+        "FoundedDetails": "founding details",
+        "IPODate": "IPO date if publicly traded",
+        "KeyMilestones": "key milestones and growth timeline",
+        "Acquisitions": "major acquisitions or expansions",
+        "RecentEvents": "recent significant events"
+    },
+    "Where": {
+        "Headquarters": "full headquarters address",
+        "City": "city",
+        "State": "state/province",
+        "Country": "country",
+        "OperationalFootprint": "where they operate",
+        "OfficeLocations": "key office locations or facilities",
+        "GeographicPresence": "geographic presence"
+    },
+    "How": {
+        "BusinessModel": "business model and how the company operates",
+        "RevenueStreams": "revenue streams and monetization strategy",
+        "Products": "key products or services offered",
+        "Monetization": "how the company makes money",
+        "CompetitiveAdvantages": "competitive advantages or unique selling points",
+        "MarketStrategy": "market strategy"
+    },
+    "Who": {
+        "CEO": "current CEO name and title",
+        "LeadershipTeam": "key leadership team members",
+        "Founders": "founder(s) name(s) and background",
+        "InstitutionalOwnership": "institutional ownership percentage if available",
+        "MajorShareholders": "major shareholders or stakeholders",
+        "BoardOfDirectors": "board of directors if available"
+    },
+    "Sources": {
+        "URLs": [
+            "list of URLs"
+        ],
+        "References": [
+            "list of references, articles, websites"
+        ]
+    }
+}

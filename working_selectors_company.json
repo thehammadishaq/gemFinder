@@ -1,0 +1,10 @@
+[
+  "div[aria-live='polite']",
+  "div[class*='ai' i]",
+  "div[class*='content' i]",
+  "div[class*='markdown' i]",
+  "div[class*='message' i]",
+  "div[class*='response' i]",
+  "main [aria-live]",
+  "p"
+]

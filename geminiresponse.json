@@ -1,0 +1,56 @@
+{
+    "What": {
+      "Sector": "Technology / Financial Services (Hybrid Model)",
+      "Industry": "Data Processing & Data Centers / Digital Assets Infrastructure",
+      "Niche": "Industrial-scale Bitcoin mining and High-Performance Computing (HPC) data center development/hosting, primarily utilizing power capacity in Texas.",
+      "Description": "Cipher Mining Inc. is an emerging technology company focused on the development and operation of industrial-scale data centers in the United States. Its primary activities include self-mining Bitcoin and providing High-Performance Computing (HPC) hosting services for large-scale customers, such as hyperscalers. The company strategically focuses on securing power capacity and developing data centers, particularly in areas like Texas, to capitalize on low-cost energy for its power-intensive operations.",
+      "Products": "Self-mined Bitcoin (for proprietary reserve or sale), Data Center Hosting Services for High-Performance Computing (HPC) workloads (e.g., AI/ML), Ancillary Services participation in the power grid (e.g., ERCOT).",
+      "MarketPosition": "A publicly traded Bitcoin miner and emerging HPC data center developer, positioning itself as a hybrid infrastructure company. It is a market leader in innovation, including in bitcoin mining growth, data center construction, and as a hosting partner to the world's largest HPC companies."
+    },
+    "When": {
+      "FoundedYear": "2021",
+      "FoundedDetails": "Founded as a development-stage company, which then merged with the Special Purpose Acquisition Company (SPAC) Good Works Acquisition Corp. to become publicly traded.",
+      "IPODate": "The SPAC merger that made the company public occurred in 2021 (The specific date of the final de-SPAC transaction is often cited as August 27, 2021, though the first public trading under the CIFR ticker may vary slightly around that time).",
+      "KeyMilestones": "Secured major data center sites in Texas (e.g., Odessa, Bear, Panther, Black Pearl, Colchis); Completed energization and full operation of key mining facilities (e.g., Black Pearl Phase I); Executed a transformative 10-year AI Hosting Agreement with Fluidstack and Google (approx. $3B contracted revenue); Executed a significant 15-year data center campus lease with Amazon Web Services (approx. $5.5B contracted revenue) to deliver 300 MW of capacity for AI workloads.",
+      "Acquisitions": "Acquisitions or development agreements for key data center sites, such as the acquisition of Black Pearl Mining (late 2023) and securing majority ownership (~95%) in a joint venture to develop the 1-Gigawatt Colchis site in West Texas.",
+      "RecentEvents": "The execution of major long-term HPC hosting contracts with Amazon Web Services and the development of the 1-Gigawatt Colchis site, signaling a significant strategic pivot and expansion into the high-performance computing data center sector."
+    },
+    "Where": {
+      "Headquarters": "1 Vanderbilt Avenue, Floor 54, Suite C, New York, NY 10017",
+      "City": "New York",
+      "State": "New York",
+      "Country": "United States",
+      "OperationalFootprint": "Operations are primarily focused on industrial-scale data centers in Texas, where it leverages large-scale power capacity and competitive energy costs.",
+      "OfficeLocations": "New York City (Headquarters).",
+      "GeographicPresence": "Operates data centers in the United States, specifically across Texas (Odessa, Bear, Panther, Black Pearl, and the future Colchis site) for Bitcoin mining and HPC hosting."
+    },
+    "How": {
+      "BusinessModel": "A hybrid operational model focused on developing and operating industrial-scale data centers. The company allocates its power capacity between two main functions: self-mining Bitcoin and hosting High-Performance Computing (HPC) workloads for third-party clients (hyperscalers/AI companies).",
+      "RevenueStreams": "1. **Self-Mining Revenue:** Bitcoin rewards earned from validating transactions on the Bitcoin blockchain. 2. **HPC Hosting Revenue:** Lease payments and service fees from large-scale contracts with clients for providing turnkey data center space and power for AI/ML workloads. 3. **Ancillary Services Revenue:** Revenue generated from participating in power grid ancillary services (e.g., ERCOT) by adjusting power consumption.",
+      "Products": "Bitcoin (as a mined commodity), Data Center Capacity and Power (as a service).",
+      "Monetization": "Monetizes its owned/developed power and data center infrastructure by either dedicating it to its proprietary Bitcoin mining operations or leasing it out for long-term, high-value HPC hosting contracts. Bitcoin mined can be held on the balance sheet or sold for operational liquidity.",
+      "CompetitiveAdvantages": "Strategic access to large-scale, low-cost, and flexible power capacity in Texas; Vertically integrated approach to data center construction and operation; Early strategic pivot into high-value, long-term HPC hosting for Tier 1 hyperscalers (like AWS and Google), providing revenue diversification and stability; Experienced management team from finance, technology, and energy sectors.",
+      "MarketStrategy": "Focus on securing and developing a large pipeline of power capacity (e.g., the 3.2 GW pipeline) in energy-rich, non-traditional locations in Texas; Optimize capital allocation between self-mining Bitcoin and high-margin, contracted HPC hosting; Continuous focus on operational efficiency and a low all-in electricity cost per Bitcoin mined."
+    },
+    "Who": {
+      "CEO": "Tyler Page, Chief Executive Officer",
+      "LeadershipTeam": "Tyler Page (CEO), Will Iwaschuk (Co-President & Chief Legal Officer), Patrick Kelly (Co-President & Chief Operating Officer), Gregory Mumford (Chief Financial Officer).",
+      "Founders": "The company was formed by a team including Tyler Page, who had previous experience in digital assets and institutional finance (Bitfury Group, NYDIG, Stone Ridge, Goldman Sachs).",
+      "InstitutionalOwnership": "High institutional ownership is typical for a public company of this size. Major institutional holders often include large asset managers like The Vanguard Group, Inc. and BlackRock Fund Advisors (exact percentage fluctuates, but is substantial).",
+      "MajorShareholders": "Institutional investors such as The Vanguard Group and BlackRock; other major stakeholders may include original SPAC investors or large convertible note holders.",
+      "BoardOfDirectors": "The board of directors is composed of industry experts, typically including the CEO, representatives from the founding entities, and independent directors (specific names would require a deep dive into the latest proxy statement)."
+    },
+    "Sources": {
+      "URLs": [
+        "[https://www.ciphermining.com/](https://www.ciphermining.com/)",
+        "[https://investors.ciphermining.com/](https://investors.ciphermining.com/)",
+        "[https://www.nasdaq.com/market-activity/stocks/cifr](https://www.nasdaq.com/market-activity/stocks/cifr)",
+        "[https://www.globenewswire.com/news-release/2025/11/03/3179121/0/en/Cipher-Mining-Provides-Third-Quarter-2025-Business-Update.html](https://www.globenewswire.com/news-release/2025/11/03/3179121/0/en/Cipher-Mining-Provides-Third-Quarter-2025-Business-Update.html)"
+      ],
+      "References": [
+        "Cipher Mining Inc. Corporate Website and Investor Relations Materials",
+        "Nasdaq Stock Quote and Company Profile for CIFR",
+        "Q3 2025 Earnings Releases and Business Updates (e.g., on AWS and Fluidstack/Google contracts)"
+      ]
+    }
+  }
