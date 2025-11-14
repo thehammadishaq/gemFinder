@@ -20,7 +20,12 @@ if sys.platform == 'win32':
 # ---------- CONFIG ----------
 # Session path relative to backend folder
 SESSION_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "x_browser_session_gemini_company")
-HEADLESS = False
+# Default to headless=True for server environments (no X server)
+# Can be overridden with GEMINI_HEADLESS environment variable (set to "false" to disable headless)
+HEADLESS = os.getenv("GEMINI_HEADLESS", "true").lower() == "true"
+# If DISPLAY is not set, force headless mode
+if not os.getenv("DISPLAY"):
+    HEADLESS = True
 CHROME_PATH = None
 MOUSE_STEP_MS = 6
 SELECTOR_MEMORY_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "working_selectors_company.json")

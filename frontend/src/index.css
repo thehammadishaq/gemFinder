@@ -17,3 +17,24 @@ body {
   width: 100%;
   min-height: 100vh;
 }
+
+/* Ticker bar animation */
+.ticker-content {
+  display: inline-flex;
+  will-change: transform;
+}
+
+.ticker-content.ticker-animate {
+  animation: ticker-scroll linear infinite;
+  animation-duration: 110s; /* Adjust speed - lower = faster */
+  animation-timing-function: linear;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(var(--ticker-width) * -1));
+  }
+}

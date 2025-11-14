@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     POLYGON_API_KEY: Optional[str] = None
     FINNHUB_API_KEY: Optional[str] = None
     
+    # Gemini Scraper settings
+    GEMINI_HEADLESS: Optional[str] = "true"  # Default to headless mode
+    
     # Proxy settings for rate limiting
     PROXY_SERVER: Optional[str] = None  # Single proxy (backward compatible)
     PROXY_SERVERS: Optional[str] = None  # Comma-separated list of proxies for rotation
@@ -42,12 +45,13 @@ class Settings(BaseSettings):
     def parse_cors_origins(self):
         """Parse CORS_ORIGINS from string to list"""
         if self.CORS_ORIGINS is None:
-            # Default values
+            # Default values - includes common frontend ports
             self.CORS_ORIGINS = [
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "http://127.0.0.1:5173",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "http://192.168.18.15:5173"  # Common network IP for frontend
             ]
         elif isinstance(self.CORS_ORIGINS, str):
             # Try JSON first

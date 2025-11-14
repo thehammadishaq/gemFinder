@@ -79,11 +79,14 @@ class FundamentalsService:
         return True
     
     async def search_by_ticker(self, query: str) -> List[Fundamentals]:
-        """Search fundamentals by ticker"""
-        # MongoDB regex search (case-insensitive)
-        from beanie.operators import Regex
+        """Search fundamentals by ticker (case-insensitive)"""
+        # Use MongoDB regex query with Beanie
+        # Escape special regex characters in query
+        import re
+        escaped_query = re.escape(query)
+        # Use find with dictionary query for regex
         return await Fundamentals.find(
-            Regex(Fundamentals.ticker, query, "i")  # "i" flag for case-insensitive
+            {"ticker": {"$regex": escaped_query, "$options": "i"}}
         ).to_list()
 
 

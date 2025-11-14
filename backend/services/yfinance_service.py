@@ -5,7 +5,7 @@ Service to fetch company data using yfinance library
 import yfinance as yf
 import pandas as pd
 import asyncio
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 import os
 import warnings
 from contextlib import contextmanager
@@ -13,11 +13,17 @@ from config.settings import settings
 import requests
 import json
 from datetime import datetime
+import time
 
 # Suppress yfinance deprecation warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 VERBOSE = (os.getenv("VERBOSE", "false") or "false").lower() in ("1", "true", "yes", "y")
+SECTION_THROTTLE_SECONDS = float(os.getenv("YFINANCE_SECTION_DELAY", "0.35"))
+MAX_FETCH_ATTEMPTS = int(os.getenv("YFINANCE_MAX_ATTEMPTS", "3"))
+RATE_LIMIT_BACKOFF_SECONDS = float(os.getenv("YFINANCE_RATE_LIMIT_BACKOFF", "2.0"))
+# Control whether to save response files (default: False - don't save)
+SAVE_RESPONSE_FILES = os.getenv("YFINANCE_SAVE_RESPONSE_FILES", "false").lower() in ("1", "true", "yes", "y")
 
 # Get proxy servers from settings
 PROXY_SERVER = settings.PROXY_SERVER or os.getenv("PROXY_SERVER")
@@ -38,13 +44,47 @@ import threading
 _proxy_lock = threading.Lock()
 
 
+def is_rate_limit_error(exc: Exception) -> bool:
+    """Determine if exception represents Yahoo rate limiting."""
+    try:
+        from requests import HTTPError
+    except ImportError:
+        HTTPError = requests.exceptions.HTTPError
+    
+    if isinstance(exc, HTTPError):
+        response = getattr(exc, "response", None)
+        if response is not None and response.status_code == 429:
+            return True
+    if isinstance(exc, requests.exceptions.RequestException):
+        response = getattr(exc, "response", None)
+        if response is not None and response.status_code == 429:
+            return True
+    message = str(exc).lower()
+    return "429" in message or "too many requests" in message or "rate limit" in message
+
+
+def throttle_section(section_name: str):
+    """Small delay between Yahoo sections to avoid tripping rate limits."""
+    if SECTION_THROTTLE_SECONDS <= 0:
+        return
+    try:
+        time.sleep(SECTION_THROTTLE_SECONDS)
+        if VERBOSE:
+            debug(f"⏱️ Throttled after '{section_name}' for {SECTION_THROTTLE_SECONDS}s")
+    except Exception:
+        pass
+
+
 def debug(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
 
 def save_response_to_file(symbol: str, section_name: str, data: any):
-    """Save response data to a JSON file"""
+    """Save response data to a JSON file (only if SAVE_RESPONSE_FILES is enabled)"""
+    if not SAVE_RESPONSE_FILES:
+        return  # Don't save files if disabled
+    
     try:
         # Get the backend directory (parent of services)
         backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -78,7 +118,7 @@ def save_response_to_file(symbol: str, section_name: str, data: any):
         print(f"⚠️ Failed to save response to file: {e}")
 
 
-def safe_get_data(func, default=None, symbol=None, section_name=None):
+def safe_get_data(func, default=None, symbol=None, section_name=None, on_error: Optional[Callable[[Exception], None]] = None):
     """Safely execute a function and return default on error"""
     try:
         result = func()
@@ -88,9 +128,16 @@ def safe_get_data(func, default=None, symbol=None, section_name=None):
         return result
     except Exception as e:
         debug(f"⚠️ Data fetch failed: {type(e).__name__}: {e}")
-        # Save error to file as well
+        error_payload = {"error": str(e), "error_type": type(e).__name__}
         if symbol and section_name:
-            save_response_to_file(symbol, f"{section_name}_ERROR", {"error": str(e), "error_type": type(e).__name__})
+            save_response_to_file(symbol, f"{section_name}_ERROR", error_payload)
+        if on_error:
+            try:
+                on_error(e)
+            except Exception:
+                pass
+        if is_rate_limit_error(e):
+            raise
         return default
 
 
@@ -230,224 +277,245 @@ async def get_all_yfinance_data(symbol: str) -> Optional[Dict]:
         loop = asyncio.get_event_loop()
         
         def fetch_data():
-            # Create ticker object (no proxy needed for initialization)
-            ticker = yf.Ticker(symbol)
-            all_data = {}
+            last_rate_limit_exc = None
             
-            # Helper functions for data conversion
-            def df_to_dict(df):
-                """Convert DataFrame to JSON-serializable dict."""
-                if df is None or df.empty:
-                    return None
-                result = {}
-                for idx, row in df.iterrows():
-                    row_name = str(idx).strip()
-                    result[row_name] = {}
-                    for col in df.columns:
-                        date_str = col.strftime("%Y-%m-%d") if hasattr(col, 'strftime') else str(col)
-                        val = row[col]
-                        if pd.notna(val):
-                            result[row_name][date_str] = str(int(val)) if abs(val) >= 1 else str(val)
-                        else:
-                            result[row_name][date_str] = None
-                return result
-            
-            def df_to_records(df):
-                """Convert DataFrame to list of records."""
-                if df is None or df.empty:
-                    return None
-                records = []
-                for idx, row in df.iterrows():
-                    record = {}
-                    if hasattr(idx, 'strftime'):
-                        record['date'] = idx.strftime("%Y-%m-%d")
-                    else:
-                        record['date'] = str(idx)
-                    for col in df.columns:
-                        val = row[col]
-                        if pd.notna(val):
-                            record[str(col)] = float(val) if isinstance(val, (int, float)) else str(val)
-                        else:
-                            record[str(col)] = None
-                    records.append(record)
-                return records
-            
-            def series_to_dict(series):
-                """Convert Series to dict."""
-                if series is None or series.empty:
-                    return None
-                result = {}
-                for date, value in series.items():
-                    date_str = date.strftime("%Y-%m-%d") if hasattr(date, 'strftime') else str(date)
-                    if pd.notna(value):
-                        result[date_str] = float(value) if isinstance(value, (int, float)) else str(value)
-                    else:
-                        result[date_str] = None
-                return result
-            
-            # 1. Company Profile & Info
-            with proxy_context(request_name="Company Profile"):
-                all_data["Company Profile"] = safe_get_data(
-                    lambda: ticker.info if ticker.info and len(ticker.info) > 0 else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Company Profile"
-                )
-            
-            # 2. Fast Info (faster access to key metrics)
-            with proxy_context(request_name="Fast Info"):
-                def get_fast_info():
-                    fi = ticker.fast_info
-                    try:
-                        keys = list(fi.keys())
-                    except Exception:
-                        try:
-                            return dict(fi)
-                        except Exception:
-                            return None
-                    out = {}
-                    for k in keys:
-                        try:
-                            val = fi[k]
-                            if isinstance(val, (int, float, str, bool)) or val is None:
-                                out[k] = val
-                            else:
-                                out[k] = str(val)
-                        except Exception:
-                            out[k] = None
-                    return out or None
-                all_data["Fast Info"] = safe_get_data(get_fast_info, None, symbol=symbol, section_name="Fast Info")
-            
-            # 3. Historical Price Data (OHLCV)
-            with proxy_context(request_name="Historical Prices"):
-                def get_historical_prices():
-                    hist = ticker.history(period="max")
-                    if not hist.empty:
-                        hist_dict = {}
-                        for col in hist.columns:
-                            hist_dict[col] = {}
-                            for date, value in hist[col].items():
-                                date_str = date.strftime("%Y-%m-%d") if hasattr(date, 'strftime') else str(date)
-                                hist_dict[col][date_str] = float(value) if pd.notna(value) else None
-                        return hist_dict
-                    return None
+            def run_with_proxy(proxy_for_run: Optional[str], attempt: int):
+                proxy_label = "Direct connection"
+                if proxy_for_run:
+                    proxy_label = f"Proxy {proxy_for_run}"
                 
-                all_data["Historical Prices"] = safe_get_data(get_historical_prices, None, symbol=symbol, section_name="Historical Prices")
+                # Use the same proxy (or direct IP) for the whole session so Yahoo cookies stay valid
+                request_name = f"{symbol} session attempt {attempt} ({proxy_label})"
+                with proxy_context(proxy_url=proxy_for_run, request_name=request_name):
+                    ticker = yf.Ticker(symbol)
+                    all_data = {}
+                    section_errors: Dict[str, list] = {}
+                    
+                    # Helper conversions live inside the proxy context so they can access ticker/session state
+                    def df_to_dict(df):
+                        """Convert DataFrame to JSON-serializable dict."""
+                        if df is None or df.empty:
+                            return None
+                        result = {}
+                        for idx, row in df.iterrows():
+                            row_name = str(idx).strip()
+                            result[row_name] = {}
+                            for col in df.columns:
+                                date_str = col.strftime("%Y-%m-%d") if hasattr(col, 'strftime') else str(col)
+                                val = row[col]
+                                if pd.notna(val):
+                                    result[row_name][date_str] = str(int(val)) if abs(val) >= 1 else str(val)
+                                else:
+                                    result[row_name][date_str] = None
+                        return result
+                    
+                    def df_to_records(df):
+                        """Convert DataFrame to list of records."""
+                        if df is None or df.empty:
+                            return None
+                        records = []
+                        for idx, row in df.iterrows():
+                            record = {}
+                            if hasattr(idx, 'strftime'):
+                                record['date'] = idx.strftime("%Y-%m-%d")
+                            else:
+                                record['date'] = str(idx)
+                            for col in df.columns:
+                                val = row[col]
+                                if pd.notna(val):
+                                    record[str(col)] = float(val) if isinstance(val, (int, float)) else str(val)
+                                else:
+                                    record[str(col)] = None
+                            records.append(record)
+                        return records
+                    
+                    def series_to_dict(series):
+                        """Convert Series to dict."""
+                        if series is None or series.empty:
+                            return None
+                        result = {}
+                        for date, value in series.items():
+                            date_str = date.strftime("%Y-%m-%d") if hasattr(date, 'strftime') else str(date)
+                            if pd.notna(value):
+                                result[date_str] = float(value) if isinstance(value, (int, float)) else str(value)
+                            else:
+                                result[date_str] = None
+                        return result
+                    
+                    def fetch_section(section_name: str, func, default=None):
+                        """Wrapper that applies safe_get_data + throttling per section."""
+                        def record_error(exc: Exception):
+                            section_errors.setdefault(section_name, []).append(str(exc))
+                        result = safe_get_data(func, default, symbol=symbol, section_name=section_name, on_error=record_error)
+                        throttle_section(section_name)
+                        return result
+                    
+                    # 1. Company Profile & Info
+                    all_data["Company Profile"] = fetch_section(
+                        "Company Profile",
+                        lambda: ticker.info if ticker.info and len(ticker.info) > 0 else None
+                    )
+                    
+                    # 2. Fast Info (faster access to key metrics)
+                    def get_fast_info():
+                        fi = ticker.fast_info
+                        try:
+                            keys = list(fi.keys())
+                        except Exception:
+                            try:
+                                return dict(fi)
+                            except Exception:
+                                return None
+                        out = {}
+                        for k in keys:
+                            try:
+                                val = fi[k]
+                                if isinstance(val, (int, float, str, bool)) or val is None:
+                                    out[k] = val
+                                else:
+                                    out[k] = str(val)
+                            except Exception:
+                                out[k] = None
+                        return out or None
+                    all_data["Fast Info"] = fetch_section("Fast Info", get_fast_info)
+                    
+                    # 3. Historical Price Data (OHLCV)
+                    def get_historical_prices():
+                        hist = ticker.history(period="max")
+                        if not hist.empty:
+                            hist_dict = {}
+                            for col in hist.columns:
+                                hist_dict[col] = {}
+                                for date, value in hist[col].items():
+                                    date_str = date.strftime("%Y-%m-%d") if hasattr(date, 'strftime') else str(date)
+                                    hist_dict[col][date_str] = float(value) if pd.notna(value) else None
+                            return hist_dict
+                        return None
+                    
+                    all_data["Historical Prices"] = fetch_section("Historical Prices", get_historical_prices)
+                    
+                    # 4. Financial Statements - Income Statement
+                    all_data["Income Statement Annual"] = fetch_section("Income Statement Annual", lambda: df_to_dict(ticker.financials))
+                    all_data["Income Statement Quarterly"] = fetch_section("Income Statement Quarterly", lambda: df_to_dict(ticker.quarterly_financials))
+                    all_data["Income Statement Annual (New)"] = fetch_section("Income Statement Annual (New)", lambda: df_to_dict(ticker.income_stmt))
+                    all_data["Income Statement Quarterly (New)"] = fetch_section("Income Statement Quarterly (New)", lambda: df_to_dict(ticker.quarterly_income_stmt))
+                    
+                    # 5. Balance Sheet
+                    all_data["Balance Sheet Annual"] = fetch_section("Balance Sheet Annual", lambda: df_to_dict(ticker.balance_sheet))
+                    all_data["Balance Sheet Quarterly"] = fetch_section("Balance Sheet Quarterly", lambda: df_to_dict(ticker.quarterly_balance_sheet))
+                    
+                    # 6. Cash Flow
+                    all_data["Cash Flow Annual"] = fetch_section("Cash Flow Annual", lambda: df_to_dict(ticker.cashflow))
+                    all_data["Cash Flow Quarterly"] = fetch_section("Cash Flow Quarterly", lambda: df_to_dict(ticker.quarterly_cashflow))
+                    
+                    # 7. Analyst Recommendations
+                    all_data["Analyst Recommendations"] = fetch_section("Analyst Recommendations", lambda: df_to_records(ticker.recommendations))
+                    all_data["Recommendations Summary"] = fetch_section("Recommendations Summary", lambda: df_to_records(ticker.recommendations_summary))
+                    
+                    # 8. Analyst Price Target
+                    all_data["Analyst Price Target"] = fetch_section(
+                        "Analyst Price Target",
+                        lambda: ticker.analyst_price_target.to_dict() if ticker.analyst_price_target is not None and not ticker.analyst_price_target.empty else None
+                    )
+                    
+                    # 9. Earnings
+                    all_data["Earnings Quarterly"] = fetch_section("Earnings Quarterly", lambda: series_to_dict(ticker.quarterly_earnings))
+                    
+                    # 10. Earnings Calendar
+                    all_data["Earnings Calendar"] = fetch_section(
+                        "Earnings Calendar",
+                        lambda: ticker.calendar.to_dict() if ticker.calendar is not None and not ticker.calendar.empty else None
+                    )
+                    
+                    # 11. Dividends
+                    all_data["Dividends"] = fetch_section(
+                        "Dividends",
+                        lambda: [{"date": str(date), "amount": float(amount)} for date, amount in ticker.dividends.items()] if not ticker.dividends.empty else None
+                    )
+                    
+                    # 12. Stock Splits
+                    all_data["Splits"] = fetch_section(
+                        "Splits",
+                        lambda: [{"date": str(date), "split_factor": float(factor)} for date, factor in ticker.splits.items()] if not ticker.splits.empty else None
+                    )
+                    
+                    # 13. Shares Outstanding
+                    all_data["Shares Outstanding"] = fetch_section("Shares Outstanding", lambda: series_to_dict(ticker.shares))
+                    
+                    # 14. Major Holders
+                    all_data["Major Holders"] = fetch_section("Major Holders", lambda: df_to_records(ticker.major_holders))
+                    
+                    # 15. Institutional Holders
+                    all_data["Institutional Holders"] = fetch_section("Institutional Holders", lambda: df_to_records(ticker.institutional_holders))
+                    
+                    # 16. Insider Transactions
+                    all_data["Insider Transactions"] = fetch_section("Insider Transactions", lambda: df_to_records(ticker.insider_transactions))
+                    
+                    # 17. Insider Purchases
+                    all_data["Insider Purchases"] = fetch_section("Insider Purchases", lambda: df_to_records(ticker.insider_purchases))
+                    
+                    # 18. Insider Roster Holders
+                    all_data["Insider Roster Holders"] = fetch_section("Insider Roster Holders", lambda: df_to_records(ticker.insider_roster_holders))
+                    
+                    # 19. Sustainability (ESG)
+                    all_data["Sustainability"] = fetch_section(
+                        "Sustainability",
+                        lambda: ticker.sustainability.to_dict() if ticker.sustainability is not None and not ticker.sustainability.empty else None
+                    )
+                    
+                    # 20. News
+                    all_data["News"] = fetch_section("News", lambda: ticker.news if ticker.news else None)
+                
+                    # Filter out None values to keep only sections with data
+                    filtered_data = {k: v for k, v in all_data.items() if v is not None}
+                    
+                    if not filtered_data:
+                        if section_errors:
+                            sample_section, errors = next(iter(section_errors.items()))
+                            raise RuntimeError(
+                                f"Yahoo Finance returned no usable data for {symbol}. "
+                                f"Sample failure [{sample_section}]: {errors[-1]}"
+                            )
+                        raise RuntimeError(
+                            f"Yahoo Finance returned empty data set for {symbol}. "
+                            "This may indicate the proxy was blocked or the ticker is invalid."
+                        )
+                    
+                    return filtered_data
             
-            # 4. Financial Statements - Income Statement
-            with proxy_context(request_name="Income Statement Annual"):
-                all_data["Income Statement Annual"] = safe_get_data(lambda: df_to_dict(ticker.financials), None, symbol=symbol, section_name="Income Statement Annual")
-            with proxy_context(request_name="Income Statement Quarterly"):
-                all_data["Income Statement Quarterly"] = safe_get_data(lambda: df_to_dict(ticker.quarterly_financials), None, symbol=symbol, section_name="Income Statement Quarterly")
-            with proxy_context(request_name="Income Statement Annual (New)"):
-                all_data["Income Statement Annual (New)"] = safe_get_data(lambda: df_to_dict(ticker.income_stmt), None, symbol=symbol, section_name="Income Statement Annual (New)")
-            with proxy_context(request_name="Income Statement Quarterly (New)"):
-                all_data["Income Statement Quarterly (New)"] = safe_get_data(lambda: df_to_dict(ticker.quarterly_income_stmt), None, symbol=symbol, section_name="Income Statement Quarterly (New)")
+            for attempt in range(1, MAX_FETCH_ATTEMPTS + 1):
+                proxy_for_run = None
+                if PROXY_SERVERS_LIST:
+                    proxy_for_run = get_next_proxy()
+                elif PROXY_SERVER:
+                    proxy_for_run = PROXY_SERVER
+                
+                try:
+                    result = run_with_proxy(proxy_for_run, attempt)
+                    if result is not None:
+                        return result
+                except Exception as exc:
+                    if is_rate_limit_error(exc):
+                        last_rate_limit_exc = exc
+                        if attempt < MAX_FETCH_ATTEMPTS:
+                            wait_time = RATE_LIMIT_BACKOFF_SECONDS * attempt
+                            print(f"⏳ [YFINANCE] Rate limit detected for {symbol}. Waiting {wait_time:.2f}s before retry #{attempt + 1}...")
+                            time.sleep(wait_time)
+                            continue
+                        break
+                    raise
             
-            # 5. Balance Sheet
-            with proxy_context(request_name="Balance Sheet Annual"):
-                all_data["Balance Sheet Annual"] = safe_get_data(lambda: df_to_dict(ticker.balance_sheet), None, symbol=symbol, section_name="Balance Sheet Annual")
-            with proxy_context(request_name="Balance Sheet Quarterly"):
-                all_data["Balance Sheet Quarterly"] = safe_get_data(lambda: df_to_dict(ticker.quarterly_balance_sheet), None, symbol=symbol, section_name="Balance Sheet Quarterly")
-            
-            # 6. Cash Flow
-            with proxy_context(request_name="Cash Flow Annual"):
-                all_data["Cash Flow Annual"] = safe_get_data(lambda: df_to_dict(ticker.cashflow), None, symbol=symbol, section_name="Cash Flow Annual")
-            with proxy_context(request_name="Cash Flow Quarterly"):
-                all_data["Cash Flow Quarterly"] = safe_get_data(lambda: df_to_dict(ticker.quarterly_cashflow), None, symbol=symbol, section_name="Cash Flow Quarterly")
-            
-            # 7. Analyst Recommendations
-            with proxy_context(request_name="Analyst Recommendations"):
-                all_data["Analyst Recommendations"] = safe_get_data(lambda: df_to_records(ticker.recommendations), None, symbol=symbol, section_name="Analyst Recommendations")
-            with proxy_context(request_name="Recommendations Summary"):
-                all_data["Recommendations Summary"] = safe_get_data(lambda: df_to_records(ticker.recommendations_summary), None, symbol=symbol, section_name="Recommendations Summary")
-            
-            # 8. Analyst Price Target
-            with proxy_context(request_name="Analyst Price Target"):
-                all_data["Analyst Price Target"] = safe_get_data(
-                    lambda: ticker.analyst_price_target.to_dict() if ticker.analyst_price_target is not None and not ticker.analyst_price_target.empty else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Analyst Price Target"
-                )
-            
-            # 9. Earnings
-            with proxy_context(request_name="Earnings Quarterly"):
-                all_data["Earnings Quarterly"] = safe_get_data(lambda: series_to_dict(ticker.quarterly_earnings), None, symbol=symbol, section_name="Earnings Quarterly")
-            
-            # 10. Earnings Calendar
-            with proxy_context(request_name="Earnings Calendar"):
-                all_data["Earnings Calendar"] = safe_get_data(
-                    lambda: ticker.calendar.to_dict() if ticker.calendar is not None and not ticker.calendar.empty else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Earnings Calendar"
-                )
-            
-            # 11. Dividends
-            with proxy_context(request_name="Dividends"):
-                all_data["Dividends"] = safe_get_data(
-                    lambda: [{"date": str(date), "amount": float(amount)} for date, amount in ticker.dividends.items()] if not ticker.dividends.empty else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Dividends"
-                )
-            
-            # 12. Stock Splits
-            with proxy_context(request_name="Splits"):
-                all_data["Splits"] = safe_get_data(
-                    lambda: [{"date": str(date), "split_factor": float(factor)} for date, factor in ticker.splits.items()] if not ticker.splits.empty else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Splits"
-                )
-            
-            # 13. Shares Outstanding
-            with proxy_context(request_name="Shares Outstanding"):
-                all_data["Shares Outstanding"] = safe_get_data(lambda: series_to_dict(ticker.shares), None, symbol=symbol, section_name="Shares Outstanding")
-            
-            # 14. Major Holders
-            with proxy_context(request_name="Major Holders"):
-                all_data["Major Holders"] = safe_get_data(lambda: df_to_records(ticker.major_holders), None, symbol=symbol, section_name="Major Holders")
-            
-            # 15. Institutional Holders
-            with proxy_context(request_name="Institutional Holders"):
-                all_data["Institutional Holders"] = safe_get_data(lambda: df_to_records(ticker.institutional_holders), None, symbol=symbol, section_name="Institutional Holders")
-            
-            # 16. Insider Transactions
-            with proxy_context(request_name="Insider Transactions"):
-                all_data["Insider Transactions"] = safe_get_data(lambda: df_to_records(ticker.insider_transactions), None, symbol=symbol, section_name="Insider Transactions")
-            
-            # 17. Insider Purchases
-            with proxy_context(request_name="Insider Purchases"):
-                all_data["Insider Purchases"] = safe_get_data(lambda: df_to_records(ticker.insider_purchases), None, symbol=symbol, section_name="Insider Purchases")
-            
-            # 18. Insider Roster Holders
-            with proxy_context(request_name="Insider Roster Holders"):
-                all_data["Insider Roster Holders"] = safe_get_data(lambda: df_to_records(ticker.insider_roster_holders), None, symbol=symbol, section_name="Insider Roster Holders")
-            
-            # 19. Sustainability (ESG)
-            with proxy_context(request_name="Sustainability"):
-                all_data["Sustainability"] = safe_get_data(
-                    lambda: ticker.sustainability.to_dict() if ticker.sustainability is not None and not ticker.sustainability.empty else None,
-                    None,
-                    symbol=symbol,
-                    section_name="Sustainability"
-                )
-            
-            # 20. News
-            with proxy_context(request_name="News"):
-                all_data["News"] = safe_get_data(lambda: ticker.news if ticker.news else None, None, symbol=symbol, section_name="News")
-            
-            # Filter out None values to keep only sections with data
-            filtered_data = {k: v for k, v in all_data.items() if v is not None}
-            
-            return filtered_data if filtered_data else None
+            if last_rate_limit_exc:
+                debug(f"❌ Rate limit persisted for {symbol} after {MAX_FETCH_ATTEMPTS} attempts: {last_rate_limit_exc}")
+                raise last_rate_limit_exc
+            return None
         
         # Execute in executor
         result = await loop.run_in_executor(None, fetch_data)
         return result
         
+    except RuntimeError:
+        raise
     except Exception as e:
         debug(f"⚠️ Failed to get all yfinance data: {e}")
         return None

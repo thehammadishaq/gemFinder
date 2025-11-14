@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
+import StockTickerBar from './components/StockTickerBar'
 import CompanyProfile from './components/CompanyProfile'
 import ProfileList from './components/ProfileList'
-import { getAllProfiles, getProfileByTicker, searchProfiles, fetchProfileFromGemini, fetchProfileFromYFinance } from './services/api'
+import { getAllProfiles, getProfileByTicker, searchProfiles } from './services/api'
 
 function App() {
   const [companyData, setCompanyData] = useState(null)
@@ -9,7 +10,7 @@ function App() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [profiles, setProfiles] = useState([])
-  const [showProfileList, setShowProfileList] = useState(false)
+  const [showProfileList, setShowProfileList] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState('browse')
   const [profileTicker, setProfileTicker] = useState('')
@@ -17,6 +18,36 @@ function App() {
   useEffect(() => {
     loadProfiles()
   }, [])
+
+  // Auto-search when searchQuery changes (with debounce)
+  useEffect(() => {
+    // Clear previous timeout
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        // Perform search
+        setLoading(true)
+        setError(null)
+        try {
+          const results = await searchProfiles(searchQuery.trim())
+          const profilesArray = Array.isArray(results) ? results : []
+          setProfiles(profilesArray)
+          setError(null)
+        } catch (err) {
+          setError(err.message || 'Search failed')
+          setProfiles([])
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        // If search is empty, load all profiles
+        loadProfiles()
+      }
+    }, 300) // 300ms debounce delay
+
+    // Cleanup timeout on unmount or when searchQuery changes
+    return () => clearTimeout(timeoutId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery])
 
   const loadProfiles = async () => {
     try {
@@ -62,10 +93,14 @@ function App() {
     setError(null)
 
     try {
-      const results = await searchProfiles(searchQuery)
-      setProfiles(results)
+      const results = await searchProfiles(searchQuery.trim())
+      // Ensure results is an array
+      const profilesArray = Array.isArray(results) ? results : []
+      setProfiles(profilesArray)
+      setError(null) // Clear any previous errors
     } catch (err) {
       setError(err.message || 'Search failed')
+      setProfiles([])
     } finally {
       setLoading(false)
     }
@@ -75,6 +110,9 @@ function App() {
     setCompanyData(profile.data)
     setCurrentTicker(profile.ticker)
     setShowProfileList(false)
+    setViewMode('profile')
+    // Scroll to top when profile is selected
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDataUpdate = (updatedData) => {
@@ -109,12 +147,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-black py-8 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-black mb-2">Company Profile Dashboard</h1>
-          <p className="text-lg text-black/70">View comprehensive company profile data from multiple sources</p>
-        </div>
-      </header>
+      {/* Stock Ticker Bar */}
+      <div className="w-full sticky top-0 z-50">
+        <StockTickerBar />
+      </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white border border-black mb-8">
@@ -155,32 +191,22 @@ function App() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Search by ticker..."
+                  placeholder="Search by ticker... (results update automatically)"
                   className="flex-1 py-3 px-4 border border-black focus:outline-none focus:ring-2 focus:ring-black"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSearch()
-                    }
-                  }}
                 />
-                <button
-                  className="px-6 py-3 bg-black text-white font-medium hover:bg-black/90 transition-colors disabled:bg-black/50"
-                  onClick={handleSearch}
-                  disabled={loading}
-                >
-                  Search
-                </button>
-                <button
-                  className="px-6 py-3 border border-black text-black font-medium hover:bg-black hover:text-white transition-colors"
-                  onClick={() => {
-                    setSearchQuery('')
-                    loadProfiles()
-                  }}
-                >
-                  Clear
-                </button>
+                {searchQuery && (
+                  <button
+                    className="px-6 py-3 border border-black text-black font-medium hover:bg-black hover:text-white transition-colors"
+                    onClick={() => {
+                      setSearchQuery('')
+                    }}
+                    title="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             )}
 
@@ -227,14 +253,7 @@ function App() {
           </div>
         )}
 
-        {loading && !companyData && viewMode === 'browse' && (
-          <div className="text-center py-12">
-            <p className="text-lg text-black">Loading...</p>
-          </div>
-        )}
-
-
-        {viewMode === 'browse' && showProfileList && (
+        {viewMode === 'browse' && !companyData && (
           <ProfileList
             profiles={profiles}
             onSelectProfile={handleSelectProfile}
@@ -243,11 +262,24 @@ function App() {
         )}
 
         {companyData && (
-          <CompanyProfile 
-            data={companyData} 
-            ticker={currentTicker} 
-            onDataUpdate={handleDataUpdate}
-          />
+          <div className="mt-8">
+            <button
+              onClick={() => {
+                setCompanyData(null)
+                setCurrentTicker(null)
+                setViewMode('browse')
+                setShowProfileList(true)
+              }}
+              className="mb-4 px-4 py-2 bg-black text-white text-sm font-medium hover:bg-black/90 transition-colors"
+            >
+              ← Back to Profiles
+            </button>
+            <CompanyProfile 
+              data={companyData} 
+              ticker={currentTicker} 
+              onDataUpdate={handleDataUpdate}
+            />
+          </div>
         )}
 
         {!companyData && !error && !loading && viewMode === 'profile' && (

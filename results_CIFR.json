@@ -117,39 +117,39 @@
         "executiveTeam": [],
         "maxAge": 86400,
         "priceHint": 2,
-        "previousClose": 18.67,
-        "open": 18.73,
-        "dayLow": 16.96,
-        "dayHigh": 18.9499,
-        "regularMarketPreviousClose": 18.67,
-        "regularMarketOpen": 18.73,
-        "regularMarketDayLow": 16.96,
-        "regularMarketDayHigh": 18.9499,
+        "previousClose": 17.38,
+        "open": 16.513,
+        "dayLow": 14.75,
+        "dayHigh": 17.03,
+        "regularMarketPreviousClose": 17.38,
+        "regularMarketOpen": 16.513,
+        "regularMarketDayLow": 14.75,
+        "regularMarketDayHigh": 17.03,
         "payoutRatio": 0.0,
         "beta": 2.927,
-        "volume": 34481998,
-        "regularMarketVolume": 34554207,
-        "averageVolume": 48518623,
-        "averageVolume10days": 55145670,
-        "averageDailyVolume10Day": 55145670,
-        "bid": 17.27,
-        "ask": 17.49,
-        "bidSize": 14,
-        "askSize": 25,
-        "marketCap": 6866699776,
+        "volume": 57050154,
+        "regularMarketVolume": 57050154,
+        "averageVolume": 48527380,
+        "averageVolume10days": 55378240,
+        "averageDailyVolume10Day": 55362310,
+        "bid": 14.84,
+        "ask": 15.01,
+        "bidSize": 23,
+        "askSize": 38,
+        "marketCap": 5898724864,
         "fiftyTwoWeekLow": 1.86,
         "fiftyTwoWeekHigh": 25.52,
         "allTimeHigh": 25.52,
         "allTimeLow": 0.382,
-        "priceToSalesTrailing12Months": 33.260193,
-        "fiftyDayAverage": 15.711,
-        "twoHundredDayAverage": 7.18625,
+        "priceToSalesTrailing12Months": 28.571619,
+        "fiftyDayAverage": 15.8964,
+        "twoHundredDayAverage": 7.2507,
         "trailingAnnualDividendRate": 0.0,
         "trailingAnnualDividendYield": 0.0,
         "currency": "USD",
         "tradeable": false,
-        "enterpriseValue": 6703236096,
-        "forwardPE": 32.792454,
+        "enterpriseValue": 5735260160,
+        "forwardPE": 28.169813,
         "profitMargins": -0.34162,
         "floatShares": 317440662,
         "sharesOutstanding": 395092054,
@@ -159,24 +159,24 @@
         "dateShortInterest": 1761868800,
         "sharesPercentSharesOut": 0.15890001,
         "heldPercentInsiders": 0.03193,
-        "heldPercentInstitutions": 0.71021,
+        "heldPercentInstitutions": 0.71559995,
         "shortRatio": 1.24,
         "shortPercentOfFloat": 0.21020001,
         "impliedSharesOutstanding": 395092054,
         "bookValue": 1.99,
-        "priceToBook": 8.733668,
+        "priceToBook": 7.5025125,
         "lastFiscalYearEnd": 1735603200,
         "nextFiscalYearEnd": 1767139200,
         "mostRecentQuarter": 1759190400,
         "netIncomeToCommon": -70529000,
         "trailingEps": -0.17,
         "forwardEps": 0.0,
-        "enterpriseToRevenue": 32.468,
-        "enterpriseToEbitda": 78.95,
-        "52WeekChange": 1.9080997,
-        "SandP52WeekChange": 0.15085125,
+        "enterpriseToRevenue": 27.78,
+        "enterpriseToEbitda": 67.549,
+        "52WeekChange": 1.6214178,
+        "SandP52WeekChange": 0.1476624,
         "quoteType": "EQUITY",
-        "currentPrice": 17.38,
+        "currentPrice": 14.93,
         "targetHighPrice": 50.0,
         "targetLowPrice": 12.0,
         "targetMeanPrice": 26.57692,
@@ -210,26 +210,44 @@
         "quoteSourceName": "Nasdaq Real Time Price",
         "triggerable": true,
         "customPriceAlertConfidence": "HIGH",
-        "epsTrailingTwelveMonths": -0.17,
-        "epsForward": 0.0,
-        "epsCurrentYear": 0.35,
-        "priceEpsCurrentYear": 49.657143,
-        "fiftyDayAverageChange": 1.6689987,
-        "fiftyDayAverageChangePercent": 0.10623122,
-        "twoHundredDayAverageChange": 10.193748,
-        "twoHundredDayAverageChangePercent": 1.4185073,
-        "shortName": "Cipher Mining Inc.",
-        "longName": "Cipher Mining Inc.",
-        "sourceInterval": 15,
-        "exchangeDataDelayedBy": 0,
         "averageAnalystRating": "1.5 - Buy",
         "cryptoTradeable": false,
         "hasPrePostMarketData": true,
         "firstTradeDateMilliseconds": 1603200600000,
-        "postMarketChangePercent": -1.2128785,
+        "postMarketChangePercent": -1.1386476,
+        "postMarketPrice": 14.76,
+        "postMarketChange": -0.17000008,
+        "regularMarketChange": -2.45,
+        "regularMarketDayRange": "14.75 - 17.03",
+        "fullExchangeName": "NasdaqGS",
+        "averageDailyVolume3Month": 48309075,
+        "fiftyTwoWeekLowChange": 13.070001,
+        "fiftyTwoWeekLowChangePercent": 7.026882,
+        "fiftyTwoWeekRange": "1.86 - 25.52",
+        "fiftyTwoWeekHighChange": -10.59,
+        "fiftyTwoWeekHighChangePercent": -0.41496864,
+        "fiftyTwoWeekChangePercent": 170.7165,
+        "earningsTimestamp": 1762176600,
+        "earningsTimestampStart": 1762176600,
+        "earningsTimestampEnd": 1762176600,
+        "earningsCallTimestampStart": 1762174800,
+        "earningsCallTimestampEnd": 1762174800,
+        "isEarningsDateEstimate": false,
+        "epsTrailingTwelveMonths": -0.17,
+        "epsForward": 0.0,
+        "epsCurrentYear": 0.35,
+        "priceEpsCurrentYear": 42.657143,
+        "fiftyDayAverageChange": -0.96640015,
+        "fiftyDayAverageChangePercent": -0.060793646,
+        "twoHundredDayAverageChange": 7.6793003,
+        "twoHundredDayAverageChangePercent": 1.0591116,
+        "sourceInterval": 15,
+        "exchangeDataDelayedBy": 0,
+        "shortName": "Cipher Mining Inc.",
+        "longName": "Cipher Mining Inc.",
         "corporateActions": [],
-        "postMarketTime": 1762995597,
-        "regularMarketTime": 1762981202,
+        "postMarketTime": 1763081996,
+        "regularMarketTime": 1763067601,
         "exchange": "NMS",
         "messageBoardId": "finmb_706582752",
         "exchangeTimezoneName": "America/New_York",
@@ -237,49 +255,31 @@
         "gmtOffSetMilliseconds": -18000000,
         "market": "us_market",
         "esgPopulated": false,
+        "regularMarketChangePercent": -14.0967,
+        "regularMarketPrice": 14.93,
         "marketState": "PREPRE",
-        "earningsTimestamp": 1762176600,
-        "earningsTimestampStart": 1762176600,
-        "earningsTimestampEnd": 1762176600,
-        "earningsCallTimestampStart": 1762174800,
-        "earningsCallTimestampEnd": 1762174800,
-        "isEarningsDateEstimate": false,
-        "regularMarketChangePercent": -6.90949,
-        "regularMarketPrice": 17.38,
-        "postMarketPrice": 17.1692,
-        "postMarketChange": -0.21079826,
-        "regularMarketChange": -1.29,
-        "regularMarketDayRange": "16.96 - 18.9499",
-        "fullExchangeName": "NasdaqGS",
-        "averageDailyVolume3Month": 48518623,
-        "fiftyTwoWeekLowChange": 15.5199995,
-        "fiftyTwoWeekLowChangePercent": 8.344086,
-        "fiftyTwoWeekRange": "1.86 - 25.52",
-        "fiftyTwoWeekHighChange": -8.140001,
-        "fiftyTwoWeekHighChangePercent": -0.31896555,
-        "fiftyTwoWeekChangePercent": 190.80997,
         "displayName": "Cipher Mining",
         "trailingPegRatio": null
     },
     "Fast Info": {
         "currency": "USD",
-        "dayHigh": 18.950000762939453,
-        "dayLow": 16.959999084472656,
+        "dayHigh": 17.030000686645508,
+        "dayLow": 14.75,
         "exchange": "NMS",
-        "fiftyDayAverage": 15.896399984359741,
-        "lastPrice": 17.3799991607666,
-        "lastVolume": 35107500,
-        "marketCap": 6866699566.945553,
-        "open": 18.700000762939453,
-        "previousClose": 18.6699,
+        "fiftyDayAverage": 16.046999988555907,
+        "lastPrice": 14.930000305175781,
+        "lastVolume": 57050154,
+        "marketCap": 5898724486.792526,
+        "open": 16.51300048828125,
+        "previousClose": 17.1028,
         "quoteType": "EQUITY",
-        "regularMarketPreviousClose": 18.670000076293945,
+        "regularMarketPreviousClose": 17.3799991607666,
         "shares": 395092054,
-        "tenDayAverageVolume": 55362310,
-        "threeMonthAverageVolume": 47831960,
+        "tenDayAverageVolume": 57235315,
+        "threeMonthAverageVolume": 48446003,
         "timezone": "America/New_York",
-        "twoHundredDayAverage": 7.25069998383522,
-        "yearChange": 1.7071649461411693,
+        "twoHundredDayAverage": 7.3028499853610995,
+        "yearChange": 1.2518853766919986,
         "yearHigh": 25.520000457763672,
         "yearLow": 1.8600000143051147
     },
@@ -1557,7 +1557,8 @@
             "2025-11-07": 20.825000762939453,
             "2025-11-10": 21.868000030517578,
             "2025-11-11": 19.010000228881836,
-            "2025-11-12": 18.700000762939453
+            "2025-11-12": 18.700000762939453,
+            "2025-11-13": 16.51300048828125
         },
         "High": {
             "2020-10-20": 9.949999809265137,
@@ -2832,7 +2833,8 @@
             "2025-11-07": 21.34000015258789,
             "2025-11-10": 22.1200008392334,
             "2025-11-11": 19.280000686645508,
-            "2025-11-12": 18.950000762939453
+            "2025-11-12": 18.950000762939453,
+            "2025-11-13": 17.030000686645508
         },
         "Low": {
             "2020-10-20": 9.899999618530273,
@@ -4107,7 +4109,8 @@
             "2025-11-07": 19.490999221801758,
             "2025-11-10": 19.549999237060547,
             "2025-11-11": 18.020000457763672,
-            "2025-11-12": 16.959999084472656
+            "2025-11-12": 16.959999084472656,
+            "2025-11-13": 14.75
         },
         "Close": {
             "2020-10-20": 9.899999618530273,
@@ -5382,7 +5385,8 @@
             "2025-11-07": 20.690000534057617,
             "2025-11-10": 19.649999618530273,
             "2025-11-11": 18.670000076293945,
-            "2025-11-12": 17.3799991607666
+            "2025-11-12": 17.3799991607666,
+            "2025-11-13": 14.930000305175781
         },
         "Volume": {
             "2020-10-20": 2864000.0,
@@ -6657,7 +6661,8 @@
             "2025-11-07": 45581000.0,
             "2025-11-10": 40693100.0,
             "2025-11-11": 34972400.0,
-            "2025-11-12": 35107500.0
+            "2025-11-12": 35266800.0,
+            "2025-11-13": 57050154.0
         },
         "Dividends": {
             "2020-10-20": 0.0,
@@ -7932,7 +7937,8 @@
             "2025-11-07": 0.0,
             "2025-11-10": 0.0,
             "2025-11-11": 0.0,
-            "2025-11-12": 0.0
+            "2025-11-12": 0.0,
+            "2025-11-13": 0.0
         },
         "Stock Splits": {
             "2020-10-20": 0.0,
@@ -9207,7 +9213,8 @@
             "2025-11-07": 0.0,
             "2025-11-10": 0.0,
             "2025-11-11": 0.0,
-            "2025-11-12": 0.0
+            "2025-11-12": 0.0,
+            "2025-11-13": 0.0
         }
     },
     "Income Statement Annual": {
@@ -12574,15 +12581,15 @@
         },
         {
             "date": "institutionsPercentHeld",
-            "Value": 0.71021
+            "Value": 0.71559995
         },
         {
             "date": "institutionsFloatPercentHeld",
-            "Value": 0.73363
+            "Value": 0.73920995
         },
         {
             "date": "institutionsCount",
-            "Value": 336.0
+            "Value": 348.0
         }
     ],
     "Institutional Holders": [
@@ -12592,26 +12599,26 @@
             "Holder": "V3 Holding Ltd                          ",
             "pctHeld": 0.2469,
             "Shares": 97567437.0,
-            "Value": 1695721973.0,
+            "Value": 1456681864.0,
             "pctChange": 0.0
         },
         {
             "date": "1",
             "Date Reported": "2025-09-30 00:00:00",
-            "Holder": "Vanguard Group Inc",
-            "pctHeld": 0.0577,
-            "Shares": 22814653.0,
-            "Value": 396518649.0,
-            "pctChange": 0.1342
+            "Holder": "Blackrock Inc.",
+            "pctHeld": 0.060900003,
+            "Shares": 24049336.0,
+            "Value": 359056593.0,
+            "pctChange": 0.0747
         },
         {
             "date": "2",
-            "Date Reported": "2025-06-30 00:00:00",
-            "Holder": "Blackrock Inc.",
-            "pctHeld": 0.056599997,
-            "Shares": 22376786.0,
-            "Value": 388908521.0,
-            "pctChange": 0.2338
+            "Date Reported": "2025-09-30 00:00:00",
+            "Holder": "Vanguard Group Inc",
+            "pctHeld": 0.0577,
+            "Shares": 22814653.0,
+            "Value": 340622776.0,
+            "pctChange": 0.1342
         },
         {
             "date": "3",
@@ -12619,7 +12626,7 @@
             "Holder": "Softbank Group Corporation",
             "pctHeld": 0.026400002,
             "Shares": 10438413.0,
-            "Value": 181419609.0,
+            "Value": 155845509.0,
             "pctChange": 0.0
         },
         {
@@ -12628,17 +12635,17 @@
             "Holder": "Alyeska Investment Group, L.p.",
             "pctHeld": 0.0201,
             "Shares": 7931415.0,
-            "Value": 137847986.0,
+            "Value": 118416028.0,
             "pctChange": 1.5716001
         },
         {
             "date": "5",
-            "Date Reported": "2025-06-30 00:00:00",
+            "Date Reported": "2025-09-30 00:00:00",
             "Holder": "Geode Capital Management, LLC",
-            "pctHeld": 0.0183,
-            "Shares": 7242210.0,
-            "Value": 125869603.0,
-            "pctChange": 0.1808
+            "pctHeld": 0.019299999,
+            "Shares": 7606121.0,
+            "Value": 113559388.0,
+            "pctChange": 0.0502
         },
         {
             "date": "6",
@@ -12646,7 +12653,7 @@
             "Holder": "State Street Corporation",
             "pctHeld": 0.018099999,
             "Shares": 7154306.0,
-            "Value": 124341832.0,
+            "Value": 106813790.0,
             "pctChange": 0.0309
         },
         {
@@ -12655,7 +12662,7 @@
             "Holder": "Tidal Investments LLC",
             "pctHeld": 0.0177,
             "Shares": 6984438.0,
-            "Value": 121389526.0,
+            "Value": 104277661.0,
             "pctChange": 0.2836
         },
         {
@@ -12664,17 +12671,17 @@
             "Holder": "Van Eck Associates Corporation",
             "pctHeld": 0.0168,
             "Shares": 6625103.0,
-            "Value": 115144284.0,
+            "Value": 98912789.0,
             "pctChange": 0.1579
         },
         {
             "date": "9",
             "Date Reported": "2025-06-30 00:00:00",
-            "Holder": "Dimensional Fund Advisors LP",
-            "pctHeld": 0.015700001,
-            "Shares": 6197409.0,
-            "Value": 107710963.0,
-            "pctChange": 3.8823998
+            "Holder": "Millennium Management Llc",
+            "pctHeld": 0.0126,
+            "Shares": 4968019.0,
+            "Value": 74172525.0,
+            "pctChange": 0.22659999
         }
     ],
     "Insider Transactions": [
@@ -14144,6 +14151,189 @@
     "Sustainability": null,
     "News": [
         {
+            "id": "ac15c7c9-8009-398f-bd26-d080833d3eaf",
+            "content": {
+                "id": "ac15c7c9-8009-398f-bd26-d080833d3eaf",
+                "contentType": "STORY",
+                "title": "Bitcoin Miners Lead Crypto Stock Losses Amid Wider Market Dip\u2014With BTC Falling",
+                "description": "",
+                "summary": "Bitcoin miners and other crypto-focused stocks plummeted on Thursday amid a wider downturn in crypto markets and other risk-on assets.",
+                "pubDate": "2025-11-13T20:15:03Z",
+                "displayTime": "2025-11-13T20:15:03Z",
+                "isHosted": true,
+                "bypassModal": false,
+                "previewUrl": null,
+                "thumbnail": {
+                    "originalUrl": "https://media.zenfs.com/en/decrypt_157/a976184eaa7ca377c0061eeeb4cddf2e",
+                    "originalWidth": 1280,
+                    "originalHeight": 720,
+                    "caption": "",
+                    "resolutions": [
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/zM9oNCn8oGEwA503u0VEzQ--~B/aD03MjA7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/decrypt_157/a976184eaa7ca377c0061eeeb4cddf2e",
+                            "width": 1280,
+                            "height": 720,
+                            "tag": "original"
+                        },
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/We89gDnn9kfrUc5NsNhMUg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/decrypt_157/a976184eaa7ca377c0061eeeb4cddf2e",
+                            "width": 170,
+                            "height": 128,
+                            "tag": "170x128"
+                        }
+                    ]
+                },
+                "provider": {
+                    "displayName": "decrypt",
+                    "url": "https://decrypt.co/"
+                },
+                "canonicalUrl": {
+                    "url": "https://decrypt.co/348543/bitcoin-miners-lead-crypto-stock-losses-market-dip-btc-falling",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "clickThroughUrl": {
+                    "url": "https://finance.yahoo.com/news/bitcoin-miners-lead-crypto-stock-201503004.html",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "metadata": {
+                    "editorsPick": false
+                },
+                "finance": {
+                    "premiumFinance": {
+                        "isPremiumNews": false,
+                        "isPremiumFreeNews": false
+                    }
+                },
+                "storyline": null
+            }
+        },
+        {
+            "id": "ba6eaf33-8317-3415-96c0-b6308ff0ee5b",
+            "content": {
+                "id": "ba6eaf33-8317-3415-96c0-b6308ff0ee5b",
+                "contentType": "STORY",
+                "title": "Bitcoin Crumbles Below $100K, Crypto Stocks Eviscerated as Liquidity Crunch Hammers Risk Markets",
+                "description": "",
+                "summary": "Crypto\u2019s U.S. trading-hour weakness continues as hopes for a new 2025 BTC high fade, a market strategist said.",
+                "pubDate": "2025-11-13T17:15:02Z",
+                "displayTime": "2025-11-13T17:15:02Z",
+                "isHosted": true,
+                "bypassModal": false,
+                "previewUrl": null,
+                "thumbnail": {
+                    "originalUrl": "https://media.zenfs.com/en/coindesk_75/14698e578e24e82d746c48abf246bcbb",
+                    "originalWidth": 1758,
+                    "originalHeight": 1080,
+                    "caption": "",
+                    "resolutions": [
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/CraM0Z3VhZg.Pi9__9EBgA--~B/aD0xMDgwO3c9MTc1ODthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/coindesk_75/14698e578e24e82d746c48abf246bcbb",
+                            "width": 1758,
+                            "height": 1080,
+                            "tag": "original"
+                        },
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/TlFFJpF8cFbbKYKTBkUrvg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/coindesk_75/14698e578e24e82d746c48abf246bcbb",
+                            "width": 170,
+                            "height": 128,
+                            "tag": "170x128"
+                        }
+                    ]
+                },
+                "provider": {
+                    "displayName": "CoinDesk",
+                    "url": "https://www.coindesk.com"
+                },
+                "canonicalUrl": {
+                    "url": "https://www.coindesk.com/markets/2025/11/13/bitcoin-slides-to-usd100k-crypto-stocks-eviscerated-as-liquidity-crunch-hammers-risk-markets",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "clickThroughUrl": {
+                    "url": "https://finance.yahoo.com/news/bitcoin-crumbles-below-100k-crypto-171502569.html",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "metadata": {
+                    "editorsPick": false
+                },
+                "finance": {
+                    "premiumFinance": {
+                        "isPremiumNews": false,
+                        "isPremiumFreeNews": false
+                    }
+                },
+                "storyline": null
+            }
+        },
+        {
+            "id": "1f277b53-9bd5-3b7d-85f4-6080936892ad",
+            "content": {
+                "id": "1f277b53-9bd5-3b7d-85f4-6080936892ad",
+                "contentType": "STORY",
+                "title": "3 Reasons to Sell TeraWulf Stock Now as Q3 Loss Widens Y/Y",
+                "description": "",
+                "summary": "WULF's Q3 loss balloons to $455M amid soaring costs and $5B+ debt. With execution risks mounting, investors should avoid this overvalued pivot play.",
+                "pubDate": "2025-11-13T15:57:00Z",
+                "displayTime": "2025-11-13T15:57:00Z",
+                "isHosted": true,
+                "bypassModal": false,
+                "previewUrl": null,
+                "thumbnail": {
+                    "originalUrl": "https://media.zenfs.com/en/zacks.com/95985fbd351cc15ddaeb3ac3a12964dc",
+                    "originalWidth": 620,
+                    "originalHeight": 413,
+                    "caption": "",
+                    "resolutions": [
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/JMCxxMRv.2_xNPQLIEvj4g--~B/aD00MTM7dz02MjA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/95985fbd351cc15ddaeb3ac3a12964dc",
+                            "width": 620,
+                            "height": 413,
+                            "tag": "original"
+                        },
+                        {
+                            "url": "https://s.yimg.com/uu/api/res/1.2/6S0cZhLpAZyFkOv3DGmHAw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/95985fbd351cc15ddaeb3ac3a12964dc",
+                            "width": 170,
+                            "height": 128,
+                            "tag": "170x128"
+                        }
+                    ]
+                },
+                "provider": {
+                    "displayName": "Zacks",
+                    "url": "http://www.zacks.com/"
+                },
+                "canonicalUrl": {
+                    "url": "https://finance.yahoo.com/news/3-reasons-sell-terawulf-stock-155700553.html",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "clickThroughUrl": {
+                    "url": "https://finance.yahoo.com/news/3-reasons-sell-terawulf-stock-155700553.html",
+                    "site": "finance",
+                    "region": "US",
+                    "lang": "en-US"
+                },
+                "metadata": {
+                    "editorsPick": false
+                },
+                "finance": {
+                    "premiumFinance": {
+                        "isPremiumNews": false,
+                        "isPremiumFreeNews": false
+                    }
+                },
+                "storyline": null
+            }
+        },
+        {
             "id": "45337263-af20-3b8c-ab29-793dc94f6ef7",
             "content": {
                 "id": "45337263-af20-3b8c-ab29-793dc94f6ef7",
@@ -14554,170 +14744,6 @@
                 },
                 "clickThroughUrl": {
                     "url": "https://finance.yahoo.com/news/bitcoin-miners-face-squeeze-hash-102530185.html",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "metadata": {
-                    "editorsPick": false
-                },
-                "finance": {
-                    "premiumFinance": {
-                        "isPremiumNews": false,
-                        "isPremiumFreeNews": false
-                    }
-                },
-                "storyline": null
-            }
-        },
-        {
-            "id": "1af92297-1dc8-3ca3-9319-881eb81b6cf7",
-            "content": {
-                "id": "1af92297-1dc8-3ca3-9319-881eb81b6cf7",
-                "contentType": "STORY",
-                "title": "Banks Lend $18 Billion for Oracle-Tied Data Center in New Mexico",
-                "description": "",
-                "summary": "Sumitomo Mitsui Banking Corp, BNP Paribas SA, Goldman Sachs Group Inc. and Mitsubishi UFJ Financial Group are administrative agents on the deal, according to people with knowledge of the matter, who asked not to be named discussing a private transaction.  The quartet has brought other banks into the fold, and will now sell the debt to additional banks and institutional investors in what\u2019s called a retail syndication, with commitments due in late November, the people added.",
-                "pubDate": "2025-11-07T19:08:33Z",
-                "displayTime": "2025-11-07T19:08:33Z",
-                "isHosted": true,
-                "bypassModal": false,
-                "previewUrl": null,
-                "thumbnail": {
-                    "originalUrl": "https://media.zenfs.com/en/bloomberg_holding_pen_162/6b5077b59ed078a4cdc4c2dd9ab4ee2c",
-                    "originalWidth": 1999,
-                    "originalHeight": 1333,
-                    "caption": "",
-                    "resolutions": [
-                        {
-                            "url": "https://s.yimg.com/uu/api/res/1.2/plvum588LKyGk74JzTVm7g--~B/aD0xMzMzO3c9MTk5OTthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/bloomberg_holding_pen_162/6b5077b59ed078a4cdc4c2dd9ab4ee2c",
-                            "width": 1999,
-                            "height": 1333,
-                            "tag": "original"
-                        },
-                        {
-                            "url": "https://s.yimg.com/uu/api/res/1.2/2jCJcXAanwFjwqNajNuaDQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/bloomberg_holding_pen_162/6b5077b59ed078a4cdc4c2dd9ab4ee2c",
-                            "width": 170,
-                            "height": 128,
-                            "tag": "170x128"
-                        }
-                    ]
-                },
-                "provider": {
-                    "displayName": "Bloomberg",
-                    "url": "https://www.bloomberg.com/company"
-                },
-                "canonicalUrl": {
-                    "url": "https://finance.yahoo.com/news/banks-lend-18-billion-oracle-190833906.html",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "clickThroughUrl": {
-                    "url": "https://finance.yahoo.com/news/banks-lend-18-billion-oracle-190833906.html",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "metadata": {
-                    "editorsPick": false
-                },
-                "finance": {
-                    "premiumFinance": {
-                        "isPremiumNews": false,
-                        "isPremiumFreeNews": false
-                    }
-                },
-                "storyline": null
-            }
-        },
-        {
-            "id": "7a86bd12-6595-329f-b515-d45b0ad2e842",
-            "content": {
-                "id": "7a86bd12-6595-329f-b515-d45b0ad2e842",
-                "contentType": "STORY",
-                "title": "A $5.5 Billion Reason to Buy Cipher Mining Stock Here",
-                "description": "",
-                "summary": "A $5.5 billion Amazon partnership has transformed Cipher from miner to modern AI powerhouse. Investors seem to witness it as the start of Cipher\u2019s next growth era.",
-                "pubDate": "2025-11-06T21:18:38Z",
-                "displayTime": "2025-11-06T21:18:38Z",
-                "isHosted": true,
-                "bypassModal": false,
-                "previewUrl": null,
-                "thumbnail": {
-                    "originalUrl": "https://media.zenfs.com/en/barchart_com_477/754d1add9645fb46c7ad31fc4fa63ccc",
-                    "originalWidth": 1600,
-                    "originalHeight": 1038,
-                    "caption": "Stock exchange financial or forex graph by Bigc Studio via Shutterstock",
-                    "resolutions": [
-                        {
-                            "url": "https://s.yimg.com/uu/api/res/1.2/goNwKgh6k0moCGcB9eaUUA--~B/aD0xMDM4O3c9MTYwMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/barchart_com_477/754d1add9645fb46c7ad31fc4fa63ccc",
-                            "width": 1600,
-                            "height": 1038,
-                            "tag": "original"
-                        },
-                        {
-                            "url": "https://s.yimg.com/uu/api/res/1.2/y45BuWHR70H_b3fNt4uwEg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/barchart_com_477/754d1add9645fb46c7ad31fc4fa63ccc",
-                            "width": 170,
-                            "height": 128,
-                            "tag": "170x128"
-                        }
-                    ]
-                },
-                "provider": {
-                    "displayName": "Barchart",
-                    "url": "https://www.barchart.com/"
-                },
-                "canonicalUrl": {
-                    "url": "https://www.barchart.com/story/news/35967217/a-5-5-billion-reason-to-buy-cipher-mining-stock-here",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "clickThroughUrl": {
-                    "url": "https://finance.yahoo.com/news/5-5-billion-reason-buy-211838552.html",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "metadata": {
-                    "editorsPick": false
-                },
-                "finance": {
-                    "premiumFinance": {
-                        "isPremiumNews": false,
-                        "isPremiumFreeNews": false
-                    }
-                },
-                "storyline": null
-            }
-        },
-        {
-            "id": "73ea4559-5908-34db-9b70-71cb5eb0827a",
-            "content": {
-                "id": "73ea4559-5908-34db-9b70-71cb5eb0827a",
-                "contentType": "STORY",
-                "title": "Credit agency Fitch rates Cipher Mining\u2019s $1.4 billion secured notes at \u2018BB-\u2018 citing \u2018elevated completion risk\u2019",
-                "description": "",
-                "summary": "The miner just signed hyperscaler AWS at its Barber Lake facility, where it anticipates to deploy the funds from the secured notes.",
-                "pubDate": "2025-11-06T14:52:31Z",
-                "displayTime": "2025-11-06T14:52:31Z",
-                "isHosted": true,
-                "bypassModal": false,
-                "previewUrl": null,
-                "thumbnail": null,
-                "provider": {
-                    "displayName": "Blockspace",
-                    "url": "https://blockspace.media/"
-                },
-                "canonicalUrl": {
-                    "url": "https://blockspace.media/insight/bitcoin-miner-cipher-prices-1-4-billion-in-secured-notes-for-texas-data-center-build/",
-                    "site": "finance",
-                    "region": "US",
-                    "lang": "en-US"
-                },
-                "clickThroughUrl": {
-                    "url": "https://finance.yahoo.com/news/credit-agency-fitch-rates-cipher-145231120.html",
                     "site": "finance",
                     "region": "US",
                     "lang": "en-US"

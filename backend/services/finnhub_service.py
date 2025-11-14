@@ -26,6 +26,10 @@ def safe_get_sync(url: str, params: Optional[Dict] = None, retries: int = 2) -> 
                 timeout=(10, 60),  # (connect_timeout, read_timeout)
                 headers={'User-Agent': 'Mozilla/5.0'}
             )
+            # Check for rate limiting before raising
+            if response.status_code == 429:
+                raise requests.exceptions.HTTPError(f"Rate limited (429)", response=response)
+            
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout as e:
@@ -37,6 +41,29 @@ def safe_get_sync(url: str, params: Optional[Dict] = None, retries: int = 2) -> 
             else:
                 print(f"⚠️ Finnhub API request failed after {retries + 1} attempts for {url.split('?')[0]}: {e}")
                 return None
+        except requests.exceptions.HTTPError as e:
+            # Handle rate limiting (429) and other HTTP errors
+            if e.response and e.response.status_code == 429:
+                if attempt < retries:
+                    wait_time = 60  # Wait 60 seconds for rate limit
+                    print(f"⚠️ Rate limited (429) for {url.split('?')[0]}, waiting {wait_time}s before retry...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"⚠️ Rate limited (429) for {url.split('?')[0]} after {retries + 1} attempts")
+                    return None
+            else:
+                if attempt < retries:
+                    wait_time = (attempt + 1) * 2
+                    print(f"⚠️ Finnhub API HTTP error {e.response.status_code if e.response else 'unknown'} (attempt {attempt + 1}/{retries + 1}) for {url.split('?')[0]}, retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    # Only log if it's not a rate limit (429) to reduce spam
+                    status_code = e.response.status_code if e.response else 'unknown'
+                    if status_code != 429:
+                        print(f"⚠️ Finnhub API request failed for {url.split('?')[0]}: HTTP {status_code}")
+                    return None
         except requests.exceptions.RequestException as e:
             if attempt < retries and "timeout" in str(e).lower():
                 wait_time = (attempt + 1) * 2
@@ -44,7 +71,10 @@ def safe_get_sync(url: str, params: Optional[Dict] = None, retries: int = 2) -> 
                 time.sleep(wait_time)
                 continue
             else:
-                print(f"⚠️ Finnhub API request failed for {url.split('?')[0]}: {type(e).__name__}")
+                # Don't print error for every failed request to reduce log spam
+                # Only print if it's not a common error
+                if "429" not in str(e) and "rate limit" not in str(e).lower():
+                    print(f"⚠️ Finnhub API request failed for {url.split('?')[0]}: {type(e).__name__}")
                 return None
     
     return None

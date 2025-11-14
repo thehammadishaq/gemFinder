@@ -828,15 +828,16 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
 
       {/* Fetch Buttons for Data Sources */}
       <div className="border-b border-black bg-black/5 px-6 py-4">
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
+        <div className="grid grid-cols-4 gap-4">
+          {/* Gemini AI */}
+          <div className="flex flex-col">
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-black">Gemini AI</p>
                 <p className="text-xs text-black/70">Browser automation (30-60 seconds)</p>
               </div>
               <button
-                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed flex-shrink-0"
                 onClick={handleFetchGemini}
                 disabled={geminiLoading || !ticker}
               >
@@ -850,15 +851,16 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
               <p className="text-xs text-red-600 mt-1">{geminiError}</p>
             )}
           </div>
-          <div className="w-px bg-black/20"></div>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
+          
+          {/* Yahoo Finance */}
+          <div className="flex flex-col border-l border-black/20 pl-4">
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-black">Yahoo Finance</p>
                 <p className="text-xs text-black/70">Backend API (3-8 seconds)</p>
               </div>
               <button
-                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed flex-shrink-0"
                 onClick={handleFetchYFinance}
                 disabled={yfinanceLoading || !ticker}
               >
@@ -872,52 +874,54 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
               <p className="text-xs text-red-600 mt-1">{yfinanceError}</p>
             )}
           </div>
-              <div className="w-px bg-black/20"></div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-black">Polygon.io</p>
-                    <p className="text-xs text-black/70">Fast API (2-5 seconds)</p>
-                  </div>
-                  <button
-                    className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed"
-                    onClick={handleFetchPolygon}
-                    disabled={polygonLoading || !ticker}
-                  >
-                    {polygonLoading ? 'Fetching...' : 'Fetch'}
-                  </button>
-                </div>
-                {polygonStatus && (
-                  <p className="text-xs text-black/70 mt-1">{polygonStatus}</p>
-                )}
-                {polygonError && (
-                  <p className="text-xs text-red-600 mt-1">{polygonError}</p>
-                )}
+          
+          {/* Polygon.io */}
+          <div className="flex flex-col border-l border-black/20 pl-4">
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-black">Polygon.io</p>
+                <p className="text-xs text-black/70">Fast API (2-5 seconds)</p>
               </div>
-              <div className="w-px bg-black/20"></div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-black">Finnhub</p>
-                    <p className="text-xs text-black/70">Fast API (3-8 seconds)</p>
-                  </div>
-                  <button
-                    className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed"
-                    onClick={handleFetchFinnhub}
-                    disabled={finnhubLoading || !ticker}
-                  >
-                    {finnhubLoading ? 'Fetching...' : 'Fetch'}
-                  </button>
-                </div>
-                {finnhubStatus && (
-                  <p className="text-xs text-black/70 mt-1">{finnhubStatus}</p>
-                )}
-                {finnhubError && (
-                  <p className="text-xs text-red-600 mt-1">{finnhubError}</p>
-                )}
-              </div>
+              <button
+                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed flex-shrink-0"
+                onClick={handleFetchPolygon}
+                disabled={polygonLoading || !ticker}
+              >
+                {polygonLoading ? 'Fetching...' : 'Fetch'}
+              </button>
             </div>
+            {polygonStatus && (
+              <p className="text-xs text-black/70 mt-1">{polygonStatus}</p>
+            )}
+            {polygonError && (
+              <p className="text-xs text-red-600 mt-1">{polygonError}</p>
+            )}
           </div>
+          
+          {/* Finnhub */}
+          <div className="flex flex-col border-l border-black/20 pl-4">
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-black">Finnhub</p>
+                <p className="text-xs text-black/70">Fast API (3-8 seconds)</p>
+              </div>
+              <button
+                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed flex-shrink-0"
+                onClick={handleFetchFinnhub}
+                disabled={finnhubLoading || !ticker}
+              >
+                {finnhubLoading ? 'Fetching...' : 'Fetch'}
+              </button>
+            </div>
+            {finnhubStatus && (
+              <p className="text-xs text-black/70 mt-1">{finnhubStatus}</p>
+            )}
+            {finnhubError && (
+              <p className="text-xs text-red-600 mt-1">{finnhubError}</p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="flex min-h-[600px]">
         {/* Left Sidebar */}

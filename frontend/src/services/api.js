@@ -1,6 +1,8 @@
 /**
  * API Service for Backend Communication
  */
+// Get API URL from environment variable, default to port 8000
+// You can set VITE_API_URL in .env file (e.g., VITE_API_URL=http://localhost:9000/api/v1)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
 
 /**
@@ -66,13 +68,20 @@ export const getProfileByTicker = async (ticker) => {
  * Search profiles by query
  */
 export const searchProfiles = async (query) => {
-  const response = await fetch(`${API_BASE_URL}/profiles/search/${encodeURIComponent(query)}`)
-
-  if (!response.ok) {
-    throw new Error('Search failed')
+  if (!query || !query.trim()) {
+    throw new Error('Search query is required')
   }
 
-  return await response.json()
+  const response = await fetch(`${API_BASE_URL}/profiles/search/${encodeURIComponent(query.trim())}`)
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Search failed' }))
+    throw new Error(error.detail || 'Search failed')
+  }
+
+  const results = await response.json()
+  // Backend returns array directly, ensure it's always an array
+  return Array.isArray(results) ? results : []
 }
 
 /**
@@ -303,6 +312,40 @@ export const fetchProfileFromPolygon = async (ticker, saveToDb = true) => {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.detail || 'Failed to fetch data from Finnhub')
+    }
+
+    return await response.json()
+  }
+
+  /**
+   * Get quote (price) for a symbol - works even when market is closed
+   */
+  export const getQuote = async (symbol) => {
+    const response = await fetch(`${API_BASE_URL}/finnhub/quote/${symbol.toUpperCase()}`)
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to fetch quote')
+    }
+
+    return await response.json()
+  }
+
+  /**
+   * Get quotes for multiple symbols
+   */
+  export const getMultipleQuotes = async (symbols) => {
+    const response = await fetch(`${API_BASE_URL}/finnhub/quotes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(symbols)
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to fetch quotes')
     }
 
     return await response.json()

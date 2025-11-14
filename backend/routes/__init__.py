@@ -6,6 +6,7 @@ from .fundamentals_routes import router as fundamentals_router
 from .polygon_routes import router as polygon_router
 from .finnhub_routes import router as finnhub_router
 from .yfinance_routes import router as yfinance_router
+from .websocket_routes import router as websocket_router
 
 # Create main API router
 api_router = APIRouter()
@@ -17,6 +18,7 @@ api_router.include_router(fundamentals_router)
 api_router.include_router(polygon_router)
 api_router.include_router(finnhub_router)
 api_router.include_router(yfinance_router)
+api_router.include_router(websocket_router)
 
 __all__ = ["api_router"]
 

@@ -26,6 +26,8 @@ class YFinanceController:
         try:
             data = await get_all_yfinance_data(ticker.upper())
             return data
+        except RuntimeError:
+            raise
         except Exception as e:
             print(f"❌ Error fetching data from Yahoo Finance: {e}")
             return None
@@ -78,6 +80,11 @@ async def fetch_data_from_yfinance_post(request: YFinanceFetchRequest) -> YFinan
             data=data,
             saved_to_db=save_to_db,
             profile_id=profile_id
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(e)
         )
     except HTTPException:
         raise
@@ -134,6 +141,11 @@ async def fetch_data_from_yfinance_get(ticker: str, save_to_db: bool = True) -> 
             data=data,
             saved_to_db=save_to_db,
             profile_id=profile_id
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(e)
         )
     except HTTPException:
         raise

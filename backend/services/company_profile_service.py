@@ -83,9 +83,12 @@ class CompanyProfileService:
         return True
     
     async def search_by_ticker(self, query: str) -> List[CompanyProfile]:
-        """Search company profiles by ticker"""
-        # MongoDB regex search (case-insensitive)
-        from beanie.operators import Regex
+        """Search company profiles by ticker (case-insensitive)"""
+        # Use MongoDB regex query with Beanie
+        # Escape special regex characters in query
+        import re
+        escaped_query = re.escape(query)
+        # Use find with dictionary query for regex
         return await CompanyProfile.find(
-            Regex(CompanyProfile.ticker, query, "i")  # "i" flag for case-insensitive
+            {"ticker": {"$regex": escaped_query, "$options": "i"}}
         ).to_list()
