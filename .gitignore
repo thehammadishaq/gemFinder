@@ -3,39 +3,11 @@
 
 
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 node_modules
-dist
-build
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+
 
 __pycache__
-.pytest_cache
-.ruff_cache
-.mypy_cache
-.coverage
-.coverage.*
-.coverage.*.*
-.coverage.*.*.*
-.coverage.*.*.*.*
-.coverage.*.*.*.*.*
-.coverage.*.*.*.*.*.*
-venv
-.venv
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
+.venv
