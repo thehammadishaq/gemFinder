@@ -1,14 +1,26 @@
 /**
  * WebSocket Service for Real-time Stock Prices
  */
+const resolveApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/$/, '')
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin.replace(/\/$/, '')}/api/v1`
+  }
+
+  return 'http://localhost:9000/api/v1'
+}
+
 // Derive WebSocket URL from API URL if VITE_WS_URL is not set
 const getWebSocketURL = () => {
   if (import.meta.env.VITE_WS_URL) {
     return import.meta.env.VITE_WS_URL
   }
-  
+
   // Derive from API URL
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+  const apiUrl = resolveApiBaseUrl()
   // Convert http:// to ws:// or https:// to wss://
   const wsUrl = apiUrl.replace(/^http/, 'ws')
   // Replace /api/v1 with /api/v1/ws

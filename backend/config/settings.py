@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 from pydantic import field_validator, model_validator
 from typing import List, Optional
 import json
+from typing import Iterable
 
 
 class Settings(BaseSettings):
@@ -41,6 +42,30 @@ class Settings(BaseSettings):
     PROXY_SERVER: Optional[str] = None  # Single proxy (backward compatible)
     PROXY_SERVERS: Optional[str] = None  # Comma-separated list of proxies for rotation
     
+    @staticmethod
+    def _expand_origin(origin: str) -> List[str]:
+        """Ensure every origin includes a scheme; generate http/https variants when missing."""
+        if not isinstance(origin, str):
+            return []
+        cleaned = origin.strip().rstrip("/")
+        if not cleaned:
+            return []
+        if "://" in cleaned:
+            return [cleaned]
+        return [f"http://{cleaned}", f"https://{cleaned}"]
+
+    @staticmethod
+    def _normalize_origins(origins: Iterable[str]) -> List[str]:
+        """Deduplicate and normalize origins."""
+        normalized = []
+        seen = set()
+        for origin in origins:
+            for expanded in Settings._expand_origin(origin):
+                if expanded not in seen:
+                    seen.add(expanded)
+                    normalized.append(expanded)
+        return normalized
+
     @model_validator(mode='after')
     def parse_cors_origins(self):
         """Parse CORS_ORIGINS from string to list"""
@@ -51,6 +76,15 @@ class Settings(BaseSettings):
                 "http://localhost:3000",
                 "http://127.0.0.1:5173",
                 "http://127.0.0.1:3000",
+                "http://127.0.0.1:9000",
+                "http://capital.limeox.com",
+                "https://capital.limeox.com",
+                "http://capital.limeox.com",
+                "http://capital.limeox.com:5173",
+                "http://capital.limeox.com:9000",
+                "https://capital.limeox.com",
+                "https://capital.limeox.com:5173",
+                "https://capital.limeox.com:9000",
                 "http://192.168.18.15:5173"  # Common network IP for frontend
             ]
         elif isinstance(self.CORS_ORIGINS, str):
@@ -66,6 +100,8 @@ class Settings(BaseSettings):
                 # If not JSON, treat as comma-separated string
                 self.CORS_ORIGINS = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
         # If it's already a list, keep it as is
+        if isinstance(self.CORS_ORIGINS, list):
+            self.CORS_ORIGINS = self._normalize_origins(self.CORS_ORIGINS)
         return self
     
     @property

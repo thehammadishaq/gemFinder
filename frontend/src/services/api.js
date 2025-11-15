@@ -1,9 +1,21 @@
 /**
  * API Service for Backend Communication
  */
-// Get API URL from environment variable, default to port 8000
-// You can set VITE_API_URL in .env file (e.g., VITE_API_URL=http://localhost:9000/api/v1)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+// Resolve API base URL with sensible defaults for production deployments behind proxies
+const resolveApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/$/, '')
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin.replace(/\/$/, '')}/api/v1`
+  }
+
+  // Development fallback
+  return 'http://localhost:9000/api/v1'
+}
+
+const API_BASE_URL = resolveApiBaseUrl()
 
 /**
  * Upload a JSON file to the backend
