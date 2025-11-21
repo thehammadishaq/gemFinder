@@ -23,7 +23,7 @@ npm install
 Create a `.env` file in the `frontend` directory (or copy from `.env.example` if available):
 
 ```bash
-# Backend API URL - Change port to match your backend (default: 8000)
+# Backend API URL - Change port to match your backend (default: 9000)
 VITE_API_URL=http://localhost:9000/api/v1
 
 # Optional: WebSocket URL (will be derived from VITE_API_URL if not set)

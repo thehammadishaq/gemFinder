@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import SectionCard from './SectionCard'
-import { fetchFundamentalsFromGemini, fetchProfileFromYFinance, fetchProfileFromGemini, fetchProfileFromPolygon, fetchDataFromFinnhub } from '../services/api'
+import SupplyChainGraph from './SupplyChainGraph'
+import { fetchFundamentalsFromGemini, fetchProfileFromYFinance, fetchProfileFromGemini, fetchProfileFromPolygon, fetchDataFromFinnhub, fetchSupplyChainFromGemini } from '../services/api'
 
 function CompanyProfile({ data, ticker, onDataUpdate }) {
   const [activeDataSource, setActiveDataSource] = useState('Profile') // Profile, Gemini, YahooFinance, Polygon, Finnhub
@@ -43,6 +44,9 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
   const [finnhubLoading, setFinnhubLoading] = useState(false)
   const [finnhubStatus, setFinnhubStatus] = useState('')
   const [finnhubError, setFinnhubError] = useState(null)
+  const [supplyChainLoading, setSupplyChainLoading] = useState(false)
+  const [supplyChainStatus, setSupplyChainStatus] = useState('')
+  const [supplyChainError, setSupplyChainError] = useState(null)
 
   // Determine available data sources
   const availableSources = []
@@ -50,6 +54,7 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
   if (data?.YahooFinance) availableSources.push('YahooFinance')
   if (data?.Polygon) availableSources.push('Polygon')
   if (data?.Finnhub) availableSources.push('Finnhub')
+  if (data?.SupplyChain) availableSources.push('SupplyChain')
   if (availableSources.length === 0) {
     // Default to Gemini if no data exists
     availableSources.push('Gemini')
@@ -346,6 +351,43 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
       return sections
     }
     
+    // For Supply Chain data source, create sections from supply chain data
+    if (activeDataSource === 'SupplyChain' && currentSourceData && typeof currentSourceData === 'object') {
+      const supplyChainSections = [
+        { key: 'suppliers', label: 'Suppliers' },
+        { key: 'customers', label: 'Customers' },
+        { key: 'manufacturing_partners', label: 'Manufacturing Partners' },
+        { key: 'subcontractors', label: 'Subcontractors' },
+        { key: 'investments', label: 'Investments' },
+        { key: 'risk_map', label: 'Risk Map' },
+        { key: 'graph_network', label: 'Graph Network' },
+        { key: 'sources', label: 'Sources' }
+      ]
+      
+      supplyChainSections.forEach(section => {
+        const data = currentSourceData[section.key]
+        if (data && (
+          Array.isArray(data) && data.length > 0 ||
+          (typeof data === 'object' && Object.keys(data).length > 0)
+        )) {
+          sections.push({ 
+            key: section.key, 
+            label: section.label, 
+            hasSubSections: false 
+          })
+        }
+      })
+      
+      // Always add View Graph button at the end
+      sections.push({ 
+        key: 'view_graph', 
+        label: 'View Graph', 
+        hasSubSections: false 
+      })
+      
+      return sections
+    }
+    
     // For Gemini data source, check for What/When/Where/How/Who structure
     if (activeDataSource === 'Gemini' && currentSourceData && typeof currentSourceData === 'object') {
       const geminiSections = ['What', 'When', 'Where', 'How', 'Who', 'Sources']
@@ -397,6 +439,20 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
     }
   }, [data, activeDataSource, availableSources])
 
+  // Reset active section when switching to Supply Chain data source
+  useEffect(() => {
+    if (activeDataSource === 'SupplyChain' && currentSourceData && typeof currentSourceData === 'object') {
+      const availableSections = buildSidebarSections()
+      // Filter out view_graph button
+      const dataSections = availableSections.filter(s => s.key !== 'view_graph')
+      
+      // If current section is not valid, set to first available data section
+      if (dataSections.length > 0 && !availableSections.some(s => s.key === activeMainSection)) {
+        setActiveMainSection(dataSections[0].key)
+      }
+    }
+  }, [activeDataSource, currentSourceData, activeMainSection])
+  
   // Reset active section when switching to Polygon, Finnhub, or Yahoo Finance data source
   useEffect(() => {
     if ((activeDataSource === 'Polygon' || activeDataSource === 'Finnhub' || activeDataSource === 'YahooFinance') && currentSourceData && typeof currentSourceData === 'object') {
@@ -491,6 +547,19 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
       return {}
     }
     
+    // Special handling for Supply Chain - return data directly from the key
+    if (activeDataSource === 'SupplyChain' && currentSourceData) {
+      // Handle View Graph button
+      if (activeMainSection === 'view_graph') {
+        // Trigger graph modal
+        if (window.supplyChainOpenGraph) {
+          window.supplyChainOpenGraph()
+        }
+        return {}
+      }
+      return currentSourceData[activeMainSection] || {}
+    }
+    
     // Special handling for Polygon.io, Finnhub, and Yahoo Finance - return data directly from the key
     if ((activeDataSource === 'Polygon' || activeDataSource === 'Finnhub' || activeDataSource === 'YahooFinance') && currentSourceData) {
       // Handle both old structure (wrapped in "What") and new structure (direct keys)
@@ -528,6 +597,14 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
         `${s.source}-${s.sectionKey}` === activeMainSection
       )
       return selectedSection ? selectedSection.label : 'Select a section'
+    }
+    
+    // For Supply Chain, use the section label
+    if (activeDataSource === 'SupplyChain') {
+      if (activeMainSection === 'view_graph') {
+        return 'View Graph'
+      }
+      return sidebarSections.find(s => s.key === activeMainSection)?.label || activeMainSection
     }
     
     // For Polygon.io, Finnhub, and Yahoo Finance, use the section key directly as the title
@@ -762,6 +839,50 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
       }
     }
 
+    const handleFetchSupplyChain = async () => {
+      if (!ticker) {
+        setSupplyChainError('Ticker symbol is required')
+        return
+      }
+
+      setSupplyChainLoading(true)
+      setSupplyChainError(null)
+      setSupplyChainStatus('Opening Gemini browser...')
+
+      try {
+        setSupplyChainStatus('Fetching supply chain data from Gemini AI...')
+        const result = await fetchSupplyChainFromGemini(ticker.toUpperCase(), true, true)
+        
+        setSupplyChainStatus('Supply chain data fetched successfully!')
+        
+        // Save supply chain data separately under "SupplyChain" key
+        if (onDataUpdate && result.data) {
+          const updatedData = {
+            ...data,
+            SupplyChain: result.data  // Save separately by source
+          }
+          onDataUpdate(updatedData)
+          // Switch to Supply Chain source after fetching
+          setActiveDataSource('SupplyChain')
+        }
+        
+        setSupplyChainError(null)
+        
+        setTimeout(() => {
+          setSupplyChainStatus('')
+        }, 3000)
+      } catch (err) {
+        const errorMsg = err.message || 'Failed to fetch supply chain from Gemini'
+        setSupplyChainError(errorMsg)
+        setSupplyChainStatus('Failed to fetch supply chain')
+        setTimeout(() => {
+          setSupplyChainStatus('')
+        }, 5000)
+      } finally {
+        setSupplyChainLoading(false)
+      }
+    }
+
   // Check if this is a completely new/empty profile
   const isNewProfile = !data || Object.keys(data).length === 0
 
@@ -839,7 +960,7 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
                 {data?.Polygon && <span className="ml-2 text-xs">●</span>}
               </button>
               <button
-                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                className={`px-6 py-3 text-sm font-medium transition-colors border-r border-black ${
                   activeDataSource === 'Finnhub'
                     ? 'bg-black text-white'
                     : 'bg-white text-black hover:bg-black/5'
@@ -849,12 +970,23 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
                 Finnhub
                 {data?.Finnhub && <span className="ml-2 text-xs">●</span>}
               </button>
+              <button
+                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                  activeDataSource === 'SupplyChain'
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-black/5'
+                } ${!data?.SupplyChain ? 'opacity-60' : ''}`}
+                onClick={() => setActiveDataSource('SupplyChain')}
+              >
+                Supply Chain
+                {data?.SupplyChain && <span className="ml-2 text-xs">●</span>}
+              </button>
             </div>
           </div>
 
       {/* Fetch Buttons for Data Sources */}
       <div className="border-b border-black bg-black/5 px-6 py-4">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-5 gap-4">
           {/* Gemini AI */}
           <div className="flex flex-col">
             <div className="flex items-start justify-between gap-3 mb-1">
@@ -946,6 +1078,29 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
               <p className="text-xs text-red-600 mt-1">{finnhubError}</p>
             )}
           </div>
+          
+          {/* Supply Chain */}
+          <div className="flex flex-col border-l border-black/20 pl-4">
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-black">Supply Chain</p>
+                <p className="text-xs text-black/70">Gemini AI (60-120 seconds)</p>
+              </div>
+              <button
+                className="px-4 py-2 bg-black text-white text-xs font-medium hover:bg-black/90 transition-colors disabled:bg-black/50 disabled:cursor-not-allowed flex-shrink-0"
+                onClick={handleFetchSupplyChain}
+                disabled={supplyChainLoading || !ticker}
+              >
+                {supplyChainLoading ? 'Fetching...' : 'Fetch'}
+              </button>
+            </div>
+            {supplyChainStatus && (
+              <p className="text-xs text-black/70 mt-1">{supplyChainStatus}</p>
+            )}
+            {supplyChainError && (
+              <p className="text-xs text-red-600 mt-1">{supplyChainError}</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -953,7 +1108,6 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
         {/* Left Sidebar */}
         <div className="w-72 border-r border-black bg-white flex-shrink-0">
           <nav className="py-4">
-            {/* Profile Tab Sidebar */}
             {activeDataSource === 'Profile' ? (
               <>
                 <div className="px-6 py-3 border-b border-black">
@@ -1000,57 +1154,73 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
               </div>
             ) : (
               sidebarSections.map((section) => (
-              <div key={section.key}>
-                <button
-                  className={`w-full text-left px-6 py-3 text-sm font-medium transition-colors border-b border-black ${
-                    activeMainSection === section.key
-                      ? 'bg-black text-white'
-                      : 'bg-white text-black hover:bg-black/5'
-                  }`}
-                  onClick={() => {
-                    setActiveMainSection(section.key)
-                    // Only handle Identity sub-sections for non-Polygon/Finnhub/YahooFinance sources
-                    if (activeDataSource !== 'Polygon' && activeDataSource !== 'Finnhub' && activeDataSource !== 'YahooFinance' && section.key === 'Identity') {
-                      // Find first available identity sub-section
-                      const availableSubSections = Object.keys(identitySections).filter(key => {
-                        const sectionData = identitySections[key]
-                        return sectionData && typeof sectionData === 'object' && Object.keys(sectionData).length > 0
-                      })
-                      if (availableSubSections.length > 0) {
-                        setActiveSubSection(availableSubSections[0])
+                <div key={section.key}>
+                  <button
+                    className={`w-full text-left px-6 py-3 text-sm font-medium transition-colors border-b border-black ${
+                      activeMainSection === section.key
+                        ? 'bg-black text-white'
+                        : 'bg-white text-black hover:bg-black/5'
+                    }`}
+                    onClick={() => {
+                      // Handle View Graph button for Supply Chain
+                      if (activeDataSource === 'SupplyChain' && section.key === 'view_graph') {
+                        if (window.supplyChainOpenGraph) {
+                          window.supplyChainOpenGraph()
+                        } else {
+                          console.error('supplyChainOpenGraph function is not available. Make sure the SupplyChainGraph component is mounted.')
+                        }
+                        return
                       }
-                    }
-                  }}
-                >
-                  {section.label}
-                </button>
+                      
+                      setActiveMainSection(section.key)
+                      if (
+                        activeDataSource !== 'Polygon' &&
+                        activeDataSource !== 'Finnhub' &&
+                        activeDataSource !== 'YahooFinance' &&
+                        activeDataSource !== 'SupplyChain' &&
+                        section.key === 'Identity'
+                      ) {
+                        const availableSubSections = Object.keys(identitySections).filter(key => {
+                          const sectionData = identitySections[key]
+                          return sectionData && typeof sectionData === 'object' && Object.keys(sectionData).length > 0
+                        })
+                        if (availableSubSections.length > 0) {
+                          setActiveSubSection(availableSubSections[0])
+                        }
+                      }
+                    }}
+                  >
+                    {section.label}
+                  </button>
 
-                {/* Sub-sections for Identity (only for non-Polygon/Finnhub/YahooFinance sources) */}
-                {activeDataSource !== 'Polygon' && activeDataSource !== 'Finnhub' && activeDataSource !== 'YahooFinance' && activeMainSection === 'Identity' && section.key === 'Identity' && (
-                  <div className="bg-black/5 border-b border-black">
-                    {Object.keys(identitySections)
-                      .filter(subSection => {
-                        // Only show sub-sections that have data
-                        const sectionData = identitySections[subSection]
-                        return sectionData && typeof sectionData === 'object' && Object.keys(sectionData).length > 0
-                      })
-                      .map((subSection) => (
-                      <button
-                        key={subSection}
-                        className={`w-full text-left px-10 py-2.5 text-xs font-medium transition-colors border-b border-black/20 last:border-b-0 ${
-                          activeSubSection === subSection
-                            ? 'bg-black/10 text-black font-semibold border-l-2 border-l-black'
-                            : 'bg-transparent text-black/70 hover:bg-black/5'
-                        }`}
-                        onClick={() => setActiveSubSection(subSection)}
-                      >
-                        {subSection}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
+                  {activeDataSource !== 'Polygon' &&
+                    activeDataSource !== 'Finnhub' &&
+                    activeDataSource !== 'YahooFinance' &&
+                    activeMainSection === 'Identity' &&
+                    section.key === 'Identity' && (
+                      <div className="bg-black/5 border-b border-black">
+                        {Object.keys(identitySections)
+                          .filter(subSection => {
+                            const sectionData = identitySections[subSection]
+                            return sectionData && typeof sectionData === 'object' && Object.keys(sectionData).length > 0
+                          })
+                          .map(subSection => (
+                            <button
+                              key={subSection}
+                              className={`w-full text-left px-10 py-2.5 text-xs font-medium transition-colors border-b border-black/20 last:border-b-0 ${
+                                activeSubSection === subSection
+                                  ? 'bg-black/10 text-black font-semibold border-l-2 border-l-black'
+                                  : 'bg-transparent text-black/70 hover:bg-black/5'
+                              }`}
+                              onClick={() => setActiveSubSection(subSection)}
+                            >
+                              {subSection}
+                            </button>
+                          ))}
+                      </div>
+                    )}
+                </div>
+              ))
             )}
           </nav>
         </div>
@@ -1058,8 +1228,50 @@ function CompanyProfile({ data, ticker, onDataUpdate }) {
         {/* Main Content Area */}
         <div className="flex-1 overflow-auto">
           <div className="p-8">
-            {/* Profile Tab Content */}
-            {activeDataSource === 'Profile' ? (
+            {/* Supply Chain Tab Content */}
+            {activeDataSource === 'SupplyChain' ? (
+              <>
+                {!currentSourceData || Object.keys(currentSourceData).length === 0 ? (
+                  <div className="mb-6 border border-black bg-black/5 p-6">
+                    <div className="text-center">
+                      <p className="text-base font-medium text-black mb-2">
+                        No supply chain data available
+                      </p>
+                      <p className="text-sm text-black/70 mb-4">
+                        Click the <strong>"Fetch"</strong> button above to load supply chain data.
+                      </p>
+                    </div>
+                  </div>
+                ) : !activeMainSection || activeMainSection === 'view_graph' ? (
+                  <div className="mb-6 border border-black bg-black/5 p-4">
+                    <p className="text-sm text-black">
+                      Select a section from the sidebar to view its data, or click "View Graph" to see the interactive graph.
+                    </p>
+                  </div>
+                ) : (
+                  <SectionCard 
+                    title={getSectionTitle()} 
+                    data={getSectionData()} 
+                  />
+                )}
+                {/* Hidden SupplyChainGraph component to expose graph modal function */}
+                <div style={{ display: 'none' }}>
+                  <SupplyChainGraph 
+                    ticker={ticker}
+                    existingData={data?.SupplyChain || null}
+                    onDataUpdate={(supplyChainData) => {
+                      if (onDataUpdate) {
+                        const updatedData = {
+                          ...data,
+                          SupplyChain: supplyChainData
+                        }
+                        onDataUpdate(updatedData)
+                      }
+                    }}
+                  />
+                </div>
+              </>
+            ) : activeDataSource === 'Profile' ? (
               <>
                 {profileSections.length === 0 ? (
                   <div className="mb-6 border border-black bg-black/5 p-8 text-center">

@@ -50,6 +50,8 @@ class Settings(BaseSettings):
         cleaned = origin.strip().rstrip("/")
         if not cleaned:
             return []
+        if cleaned == "*":
+            return ["*"]
         if "://" in cleaned:
             return [cleaned]
         return [f"http://{cleaned}", f"https://{cleaned}"]
@@ -70,23 +72,8 @@ class Settings(BaseSettings):
     def parse_cors_origins(self):
         """Parse CORS_ORIGINS from string to list"""
         if self.CORS_ORIGINS is None:
-            # Default values - includes common frontend ports
-            self.CORS_ORIGINS = [
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:9000",
-                "http://capital.limeox.com",
-                "https://capital.limeox.com",
-                "http://capital.limeox.com",
-                "http://capital.limeox.com:5173",
-                "http://capital.limeox.com:9000",
-                "https://capital.limeox.com",
-                "https://capital.limeox.com:5173",
-                "https://capital.limeox.com:9000",
-                "http://192.168.18.15:5173"  # Common network IP for frontend
-            ]
+            # Default: allow all origins (development)
+            self.CORS_ORIGINS = ["*"]
         elif isinstance(self.CORS_ORIGINS, str):
             # Try JSON first
             try:
@@ -101,7 +88,10 @@ class Settings(BaseSettings):
                 self.CORS_ORIGINS = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
         # If it's already a list, keep it as is
         if isinstance(self.CORS_ORIGINS, list):
-            self.CORS_ORIGINS = self._normalize_origins(self.CORS_ORIGINS)
+            if "*" in self.CORS_ORIGINS:
+                self.CORS_ORIGINS = ["*"]
+            else:
+                self.CORS_ORIGINS = self._normalize_origins(self.CORS_ORIGINS)
         return self
     
     @property

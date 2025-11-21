@@ -13,3 +13,5 @@ wikipedia==1.4.0
 requests==2.31.0
 python-dotenv==1.0.0
 websockets==13.1
+networkx==3.2.1
+pyvis==0.3.2

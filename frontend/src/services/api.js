@@ -3,19 +3,65 @@
  */
 // Resolve API base URL with sensible defaults for production deployments behind proxies
 const resolveApiBaseUrl = () => {
+  // Priority 1: Use VITE_API_URL from environment variable
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL.replace(/\/$/, '')
+    const url = import.meta.env.VITE_API_URL.replace(/\/$/, '')
+    console.log('[API] Using VITE_API_URL from env:', url)
+    return url
   }
 
-  if (typeof window !== 'undefined' && window.location?.origin) {
-    return `${window.location.origin.replace(/\/$/, '')}/api/v1`
+  // Priority 2: Check if running on a domain (not localhost)
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const hostname = window.location.hostname
+    const protocol = window.location.protocol
+    
+    console.log('[API] Detected hostname:', hostname)
+    console.log('[API] Full origin:', window.location.origin)
+    
+    // If not localhost/127.0.0.1/local IP, use the same domain with port 9000
+    const isLocalhost = hostname === 'localhost' || 
+                       hostname === '127.0.0.1' || 
+                       hostname.startsWith('192.168.') ||
+                       hostname.startsWith('10.') ||
+                       hostname.startsWith('172.16.')
+    
+    console.log('[API] Is localhost?', isLocalhost)
+    
+    if (!isLocalhost) {
+      // Use same domain with port 9000 for backend
+      const url = `${protocol}//${hostname}:9000/api/v1`
+      console.log('[API] ✅ Using same domain with port 9000:', url)
+      return url
+    }
+    
+    // In production mode on localhost, use same origin with /api/v1
+    if (import.meta.env.PROD) {
+      const origin = window.location.origin
+      const url = `${origin.replace(/\/$/, '')}/api/v1`
+      console.log('[API] Using window.location.origin (production):', url)
+      return url
+    }
   }
 
-  // Development fallback
-  return 'http://localhost:9000/api/v1'
+  // Priority 3: Development fallback - use localhost:9000 (only for actual localhost)
+  const fallbackUrl = 'http://localhost:9000/api/v1'
+  console.log('[API] Using development fallback:', fallbackUrl)
+  return fallbackUrl
 }
 
-const API_BASE_URL = resolveApiBaseUrl()
+// Resolve API URL - always evaluate at runtime to avoid caching issues
+const getApiBaseUrl = () => {
+  return resolveApiBaseUrl()
+}
+
+// Export as function to ensure it's always evaluated fresh
+// But also export as constant for backward compatibility
+const API_BASE_URL = getApiBaseUrl()
+
+// Log the final URL
+console.log('[API] ⚡ API_BASE_URL resolved to:', API_BASE_URL)
+console.log('[API] Current window.location:', typeof window !== 'undefined' ? window.location.href : 'N/A (SSR)')
+
 
 /**
  * Upload a JSON file to the backend
@@ -358,6 +404,46 @@ export const fetchProfileFromPolygon = async (ticker, saveToDb = true) => {
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.detail || 'Failed to fetch quotes')
+    }
+
+    return await response.json()
+  }
+
+  /**
+   * Fetch supply chain data from Gemini AI
+   */
+  export const fetchSupplyChainFromGemini = async (ticker, saveToDb = true, generateGraph = true) => {
+    const response = await fetch(`${API_BASE_URL}/supply-chain/fetch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ticker: ticker.toUpperCase(),
+        save_to_db: saveToDb,
+        generate_graph: generateGraph
+      })
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to fetch supply chain from Gemini')
+    }
+
+    return await response.json()
+  }
+
+  /**
+   * Fetch supply chain data from Gemini AI (GET method)
+   */
+  export const fetchSupplyChainFromGeminiGet = async (ticker, saveToDb = true, generateGraph = true) => {
+    const response = await fetch(
+      `${API_BASE_URL}/supply-chain/fetch/${ticker.toUpperCase()}?save_to_db=${saveToDb}&generate_graph=${generateGraph}`
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.detail || 'Failed to fetch supply chain from Gemini')
     }
 
     return await response.json()

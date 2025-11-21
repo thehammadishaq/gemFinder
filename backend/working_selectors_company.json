@@ -1,0 +1,19 @@
+[
+  "div[aria-live='polite']",
+  "div[class*='ai' i]",
+  "div[class*='content' i]",
+  "div[class*='markdown' i]",
+  "div[class*='message' i]",
+  "div[class*='response' i]",
+  "main [aria-live]",
+  "message-content.model-response-text",
+  "message-content.model-response-text .markdown p",
+  "message-content.model-response-text p",
+  "model-response",
+  "model-response message-content p",
+  "model-response message-content.model-response-text .markdown p",
+  "model-response message-content.model-response-text p",
+  "p",
+  "response-container",
+  "response-container message-content p"
+]
